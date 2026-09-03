@@ -4,8 +4,8 @@ category: Full Hook-Up
 generated: 2026-09-03
 status: unmeasured
 category_baseline:
-  pad_length_ft: 50
-  pad_width_ft: 10
+  site_length_ft: 50
+  site_width_ft: 10
   sewer: true
   max_occupancy: 8
   source: disney-category
@@ -35,8 +35,8 @@ sign_evidence:
 site_count: 0
 sites:
 - site_number: 1601
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -45,8 +45,8 @@ sites:
   - 28.403884
   - -81.554855
 - site_number: 1602
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -55,8 +55,8 @@ sites:
   - 28.403955
   - -81.554818
 - site_number: 1603
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -65,8 +65,8 @@ sites:
   - 28.404162
   - -81.555056
 - site_number: 1604
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -75,8 +75,8 @@ sites:
   - 28.40407
   - -81.554737
 - site_number: 1605
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -85,8 +85,8 @@ sites:
   - 28.404308
   - -81.554937
 - site_number: 1606
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -95,8 +95,8 @@ sites:
   - 28.404171
   - -81.554639
 - site_number: 1607
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -105,8 +105,8 @@ sites:
   - 28.404439
   - -81.554768
 - site_number: 1608
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -115,8 +115,8 @@ sites:
   - 28.404214
   - -81.554576
 - site_number: 1609
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -125,8 +125,8 @@ sites:
   - 28.404509
   - -81.554557
 - site_number: 1610
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -135,8 +135,8 @@ sites:
   - 28.404254
   - -81.55439
 - site_number: 1611
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -145,8 +145,8 @@ sites:
   - 28.404549
   - -81.554398
 - site_number: 1612
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -155,8 +155,8 @@ sites:
   - 28.404316
   - -81.554197
 - site_number: 1613
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -165,8 +165,8 @@ sites:
   - 28.404605
   - -81.554263
 - site_number: 1614
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -175,8 +175,8 @@ sites:
   - 28.404436
   - -81.553995
 - site_number: 1615
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -185,8 +185,8 @@ sites:
   - 28.404675
   - -81.554192
 - site_number: 1616
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -195,8 +195,8 @@ sites:
   - 28.404634
   - -81.553876
 - site_number: 1617
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -205,8 +205,8 @@ sites:
   - 28.404758
   - -81.554181
 - site_number: 1618
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -215,8 +215,8 @@ sites:
   - 28.40487
   - -81.553909
 - site_number: 1619
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -225,8 +225,8 @@ sites:
   - 28.404812
   - -81.554238
 - site_number: 1620
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -235,8 +235,8 @@ sites:
   - 28.405041
   - -81.554105
 - site_number: 1621
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -245,8 +245,8 @@ sites:
   - 28.4048
   - -81.554252
 - site_number: 1622
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -255,8 +255,8 @@ sites:
   - 28.405085
   - -81.554341
 - site_number: 1623
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -265,8 +265,8 @@ sites:
   - 28.4048
   - -81.55443
 - site_number: 1624
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -275,8 +275,8 @@ sites:
   - 28.40507
   - -81.554553
 - site_number: 1625
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -285,8 +285,8 @@ sites:
   - 28.404775
   - -81.554571
 - site_number: 1626
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -295,8 +295,8 @@ sites:
   - 28.405026
   - -81.554747
 - site_number: 1627
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -305,8 +305,8 @@ sites:
   - 28.404732
   - -81.554718
 - site_number: 1628
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -315,8 +315,8 @@ sites:
   - 28.404973
   - -81.554913
 - site_number: 1629
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -325,8 +325,8 @@ sites:
   - 28.404678
   - -81.554886
 - site_number: 1630
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -335,8 +335,8 @@ sites:
   - 28.404905
   - -81.555105
 - site_number: 1631
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -345,8 +345,8 @@ sites:
   - 28.40462
   - -81.555019
 - site_number: 1632
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -355,8 +355,8 @@ sites:
   - 28.404839
   - -81.555248
 - site_number: 1633
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -365,8 +365,8 @@ sites:
   - 28.404552
   - -81.555168
 - site_number: 1634
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -375,8 +375,8 @@ sites:
   - 28.404719
   - -81.555448
 - site_number: 1635
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -385,8 +385,8 @@ sites:
   - 28.404469
   - -81.555269
 - site_number: 1636
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -395,8 +395,8 @@ sites:
   - 28.404544
   - -81.55558
 - site_number: 1637
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -405,8 +405,8 @@ sites:
   - 28.404394
   - -81.555296
 - site_number: 1638
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -415,8 +415,8 @@ sites:
   - 28.404373
   - -81.555631
 - site_number: 1639
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -425,8 +425,8 @@ sites:
   - 28.404289
   - -81.55532
 - site_number: 1640
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -435,8 +435,8 @@ sites:
   - 28.404169
   - -81.555627
 - site_number: 1641
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -445,8 +445,8 @@ sites:
   - 28.40419
   - -81.55529
 - site_number: 1642
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -455,8 +455,8 @@ sites:
   - 28.403931
   - -81.555463
 - site_number: 1643
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -465,8 +465,8 @@ sites:
   - 28.40414
   - -81.555226
 - site_number: 1644
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -475,8 +475,8 @@ sites:
   - 28.403849
   - -81.555272
 - site_number: 1645
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified
@@ -485,8 +485,8 @@ sites:
   - 28.404098
   - -81.555092
 - site_number: 1646
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
+  site_length_ft: unmeasured
+  site_width_ft: unmeasured
   pad_orientation_deg: unmeasured
   backs_onto: unknown
   number_confidence: verified

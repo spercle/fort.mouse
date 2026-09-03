@@ -1,7 +1,12 @@
 """Record a measurement taken on the ground.
 
-    python3 pipeline/observe.py 101 --width 10 --length 24 \
-        --backs-onto "basketball goal" --note "Measured on site."
+    python3 pipeline/observe.py 101 --site-length 45 \
+        --pad-length 24 --pad-width 10 \
+        --backs-onto "basketball goal"
+
+Site and pad are separate measurements (ADR-0005). The site is the usable length a rig
+has to fit into; the pad is the poured concrete inside it. Site 101 is 45 ft of site
+over a 24 ft slab, so recording one as the other would be wrong by 21 feet.
 
 Writes data/observed.yaml, which is HUMAN-OWNED — derive.py never touches it, so
 re-running the aerial measurements cannot overwrite something someone stood on the
@@ -40,8 +45,10 @@ def find_loop(n):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("site", type=int)
-    ap.add_argument("--width", type=float)
-    ap.add_argument("--length", type=float)
+    ap.add_argument("--site-length", type=float, help="usable site length, ft")
+    ap.add_argument("--site-width", type=float, help="usable site width, ft")
+    ap.add_argument("--pad-length", type=float, help="poured concrete length, ft")
+    ap.add_argument("--pad-width", type=float, help="poured concrete width, ft")
     ap.add_argument("--backs-onto")
     ap.add_argument("--surface")
     ap.add_argument("--note")
@@ -59,7 +66,10 @@ def main():
     entry = {"site_number": args.site, "source": "observed"}
     if args.date:
         entry["date"] = args.date
-    for key, val in (("pad_width_ft", args.width), ("pad_length_ft", args.length),
+    for key, val in (("site_length_ft", args.site_length),
+                     ("site_width_ft", args.site_width),
+                     ("pad_length_ft", args.pad_length),
+                     ("pad_width_ft", args.pad_width),
                      ("backs_onto", args.backs_onto), ("pad_surface", args.surface),
                      ("note", args.note)):
         if val is not None:
@@ -76,21 +86,24 @@ def main():
         yaml.safe_dump(data, fh, sort_keys=False, allow_unicode=True, width=88)
 
     print(f"  site {args.site} ({loop['category']}) recorded from observation")
-    for k in ("pad_length_ft", "pad_width_ft", "backs_onto", "pad_surface"):
+    for k in ("site_length_ft", "site_width_ft", "pad_length_ft", "pad_width_ft",
+              "backs_onto", "pad_surface"):
         if k in entry:
             print(f"    {k}: {entry[k]}")
 
     # Flag rather than reject: Disney publishes a category ceiling, not a floor,
     # and a short pad is a real thing worth knowing about.
+    # Compare like with like: the published figure is a SITE length, so only a site
+    # length gets checked against it. A short slab inside a full-length site is normal
+    # and must not be flagged as if the site were short.
     cmax = CATEGORY_MAX.get(loop["category"])
-    if cmax and args.length:
-        max_len, max_wid = cmax
-        if args.length < max_len * 0.65:
-            print(f"\n  NOTE: Disney lists {loop['category']} at up to {max_len} ft. "
-                  f"{args.length} ft is well under that.")
-            print("  That may be exactly right — the published figure is a ceiling for")
-            print("  the category, not a promise about any one site — but it is worth")
-            print("  a second look before anyone plans a rig around it.")
+    if cmax and args.site_length:
+        max_len, _ = cmax
+        if args.site_length < max_len * 0.65:
+            print(f"\n  NOTE: Disney lists {loop['category']} at up to {max_len} ft "
+                  f"of site. {args.site_length} ft is well under that.")
+            print("  The published figure is a ceiling for the category, not a promise")
+            print("  about any one site — but it is worth a second look.")
     print(f"\n  {len(data['sites'])} site(s) measured on the ground")
 
 

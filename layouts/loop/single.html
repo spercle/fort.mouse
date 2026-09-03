@@ -18,7 +18,7 @@
   <p class="chips">
     <span class="chip chip-cat">{{ $loop.category }}</span>
     <span class="chip">{{ if $b.sewer }}Sewer{{ else }}No sewer{{ end }}</span>
-    <span class="chip">Up to {{ $b.pad_length_ft }} × {{ $b.pad_width_ft }} ft</span>
+    <span class="chip">Up to {{ $b.site_length_ft }} × {{ $b.site_width_ft }} ft</span>
     {{ if $loop.own_count }}
       <span class="chip chip-ok">{{ $loop.own_count }} of {{ $loop.site_count }} measured</span>
     {{ else }}
@@ -38,13 +38,13 @@
     <div class="fact" data-state="measured"><span class="fact-v">{{ $loop.site_count }}</span><span class="fact-k">Sites</span></div>
     <div class="fact" data-state="{{ if $loop.own_count }}measured{{ else }}unmeasured{{ end }}"><span class="fact-v">{{ $loop.own_count }}</span><span class="fact-k">Measured by us</span></div>
     {{ if $loop.seeded_count }}<div class="fact" data-state="measured" data-source="seeded"><span class="fact-v">{{ $loop.seeded_count }}</span><span class="fact-k">Seeded</span></div>{{ end }}
-    <div class="fact" data-state="{{ if $loop.median_pad_ft }}measured{{ else }}unmeasured{{ end }}"><span class="fact-v">{{ with $loop.median_pad_ft }}{{ . }} ft{{ else }}Unmeasured{{ end }}</span><span class="fact-k">Median pad</span></div>
-    <div class="fact" data-state="{{ if $loop.longest_pad_ft }}measured{{ else }}unmeasured{{ end }}"><span class="fact-v">{{ with $loop.longest_pad_ft }}{{ . }} ft{{ else }}Unmeasured{{ end }}</span><span class="fact-k">Longest pad</span></div>
+    <div class="fact" data-state="{{ if $loop.median_site_ft }}measured{{ else }}unmeasured{{ end }}"><span class="fact-v">{{ with $loop.median_site_ft }}{{ . }} ft{{ else }}Unmeasured{{ end }}</span><span class="fact-k">Median site</span></div>
+    <div class="fact" data-state="{{ if $loop.longest_site_ft }}measured{{ else }}unmeasured{{ end }}"><span class="fact-v">{{ with $loop.longest_site_ft }}{{ . }} ft{{ else }}Unmeasured{{ end }}</span><span class="fact-k">Longest site</span></div>
     <div class="fact" data-state="{{ if $loop.road_length_ft }}measured{{ else }}unknown{{ end }}"><span class="fact-v">{{ with $loop.road_length_ft }}{{ math.Round . }} ft{{ else }}Unknown{{ end }}</span><span class="fact-k">Road length</span></div>
   </div>
 
   <p class="fallback">
-    Disney lists {{ $loop.category }} at up to {{ $b.pad_length_ft }} × {{ $b.pad_width_ft }} ft
+    Disney lists {{ $loop.category }} at up to {{ $b.site_length_ft }} × {{ $b.site_width_ft }} ft
     — a category maximum, not a measurement of any site here.
     {{ with $loop.sign_evidence }}
       Site range read from the loop's own entrance sign, which reads
@@ -138,7 +138,7 @@
   <h2>Sites</h2>
   <div class="sites">
     {{ range $loop.sites }}
-      {{ $len := index .fields "pad_length_ft" }}
+      {{ $len := index .fields "site_length_ft" }}
       <a class="site-chip" href="{{ printf "site/%v/" .site_number | relURL }}"
          data-measured="{{ if and .is_measured (ne $len.source "seeded") }}true{{ else }}false{{ end }}"
          {{ if eq $len.source "seeded" }}data-seeded="true"{{ end }}>

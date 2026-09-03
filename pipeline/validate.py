@@ -22,8 +22,13 @@ CATEGORIES = {"Tent/Pop-Up", "Full Hook-Up", "Preferred", "Premium", "Premium Me
 
 # Sanity bounds. A pad outside these is a digitizing mistake, not a discovery.
 BOUNDS = {
-    "pad_length_ft": (15.0, 90.0),
-    "pad_width_ft": (6.0, 30.0),
+    # The usable site — what a rig has to fit into, and what Disney publishes.
+    "site_length_ft": (15.0, 90.0),
+    "site_width_ft": (6.0, 30.0),
+    # The poured concrete within it, which is routinely much shorter. Site 101 is
+    # 45 ft of site over a 24 ft slab, so the floor here has to be far lower.
+    "pad_length_ft": (6.0, 90.0),
+    "pad_width_ft": (4.0, 30.0),
     "pad_orientation_deg": (0.0, 180.0),
     "road_offset_ft": (0.0, 300.0),
 }
@@ -64,7 +69,7 @@ def validate_loop(data, name="loop"):
                       f"{sorted(CATEGORIES)}")
 
     base = data.get("category_baseline") or {}
-    for key in ("pad_length_ft", "pad_width_ft", "sewer", "max_occupancy"):
+    for key in ("site_length_ft", "site_width_ft", "sewer", "max_occupancy"):
         if key not in base:
             errors.append(f"{name}.category_baseline: missing {key!r}")
 
@@ -105,7 +110,7 @@ def validate_seed(data, name="seed"):
         if not isinstance(site.get("site_number"), int):
             errors.append(f"{where}.site_number: expected an integer")
             continue
-        for key in ("pad_length_ft", "pad_width_ft"):
+        for key in ("site_length_ft", "site_width_ft", "pad_length_ft", "pad_width_ft"):
             _measure(errors, where, key, site.get(key))
     if errors:
         raise Invalid("\n".join("  " + e for e in errors))

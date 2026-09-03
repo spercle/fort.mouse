@@ -31,7 +31,7 @@
         </h2>
         <div class="sites">
           {{ range $l.sites }}
-            {{ $len := index .fields "pad_length_ft" }}
+            {{ $len := index .fields "site_length_ft" }}
             {{ $mine := and .is_measured (ne $len.source "seeded") }}
             <a class="site-chip" href="{{ printf "site/%v/" .site_number | relURL }}"
                data-measured="{{ if $mine }}true{{ else }}false{{ end }}"

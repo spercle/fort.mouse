@@ -85,8 +85,8 @@
         <span class="loop-name">{{ .loop_name }} · {{ .category }}</span>
         <div class="loop-stats">
           <span>{{ .site_count }} sites</span>
-          {{ with .median_pad_ft }}<span>median {{ . }} ft</span>{{ end }}
-          {{ with .longest_pad_ft }}<span>longest {{ . }} ft</span>{{ end }}
+          {{ with .median_site_ft }}<span>median {{ . }} ft</span>{{ end }}
+          {{ with .longest_site_ft }}<span>longest {{ . }} ft</span>{{ end }}
         </div>
         <div class="meter" aria-hidden="true">
           <i style="width:{{ if .site_count }}{{ div (mul .own_count 100.0) .site_count }}{{ else }}0{{ end }}%"></i>

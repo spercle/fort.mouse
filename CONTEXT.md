@@ -18,8 +18,17 @@ of Site, not a category label — Loops have their own attributes and identity.
 _Avoid_: neighborhood, section, area, street.
 
 **Pad**:
-The prepared surface within a Site that a rig parks on. A component of a Site, never
-a synonym for it — a Site is Pad plus everything around it.
+The **poured concrete** within a Site. A component of a Site, never a synonym for it,
+and routinely much shorter than the Site: site 101 is 45 ft of Site over a 24 ft Pad.
+Say "concrete pad" wherever the two could be confused.
+_Avoid_: using "pad" for the whole parking surface — that is the Site Length.
+
+**Site Length**:
+The usable length a rig has to fit into, concrete and apron together. This is the
+figure Disney publishes per Category, the figure a guest compares against their rig,
+and the headline measurement on a Site page. What gets traced from aerial imagery,
+because the slab and the apron are not separable from above.
+_Avoid_: pad length, pad size.
 
 **The Guide**:
 The product itself. Placeholder term until a name is settled. Chosen specifically so
@@ -29,7 +38,8 @@ _Avoid_: the site, the website.
 **Category**:
 Disney's own classification of a Site, which is what you actually book: Tent/Pop-Up,
 Full Hook-Up, Preferred, Premium, or Premium Meadow. A Loop is (mostly) uniform in
-Category. Disney publishes one pad dimension per Category and nothing finer.
+Category. Disney publishes one Site dimension per Category and nothing finer — and it is a
+Site Length, not a Pad; the concrete inside it may be far shorter.
 _Avoid_: tier, class, type, level.
 
 **Loop Request**:

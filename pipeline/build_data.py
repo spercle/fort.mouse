@@ -63,7 +63,11 @@ def load_photos():
         out.setdefault(ph["site"], []).append(ph)
     return out
 
-MEASURES = ["pad_length_ft", "pad_width_ft", "pad_orientation_deg",
+# Site and pad are different measurements of different things — see ADR-0005. The
+# site is what a rig has to fit into and what Disney publishes; the pad is the poured
+# concrete inside it, which is routinely much shorter.
+MEASURES = ["site_length_ft", "site_width_ft",
+            "pad_length_ft", "pad_width_ft", "pad_orientation_deg",
             "road_offset_ft", "pad_surface", "backs_onto", "approach_side"]
 
 LABEL = {
@@ -77,7 +81,8 @@ NOTE = {
                  "capture. It resolves only on foot."),
     "unknown": "No source we have can answer this.",
 }
-UNITS = {"pad_length_ft": " ft", "pad_width_ft": " ft",
+UNITS = {"site_length_ft": " ft", "site_width_ft": " ft",
+         "pad_length_ft": " ft", "pad_width_ft": " ft",
          "pad_orientation_deg": "°", "road_offset_ft": " ft"}
 
 
@@ -132,7 +137,7 @@ def main():
 
             seed = by_number.get(n)
             if seed:
-                for key in ("pad_length_ft", "pad_width_ft"):
+                for key in ("site_length_ft", "site_width_ft"):
                     if fields[key]["state"] != "measured" and seed.get(key) is not None:
                         fields[key] = {
                             "state": "measured", "value": seed[key], "source": "seeded",
@@ -163,7 +168,7 @@ def main():
                 if f["state"] == "measured":
                     f["display"] = str(f["value"])
 
-            length = fields["pad_length_ft"]
+            length = fields["site_length_ft"]
             if length["state"] == "measured":
                 if length["source"] == "seeded":
                     seeded += 1
@@ -213,8 +218,8 @@ def main():
             "own_count": own,
             "seeded_count": seeded,
             "observed_count": seen,
-            "median_pad_ft": lengths[len(lengths) // 2] if lengths else None,
-            "longest_pad_ft": lengths[-1] if lengths else None,
+            "median_site_ft": lengths[len(lengths) // 2] if lengths else None,
+            "longest_site_ft": lengths[-1] if lengths else None,
             "sites": out_sites,
         }
         with open(os.path.join(OUT, f"{loop_no}.yaml"), "w") as fh:

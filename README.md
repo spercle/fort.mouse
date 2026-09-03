@@ -135,6 +135,26 @@ python3 pipeline/derive.py 1200 work/loop-1200-pads.geojson
 `derive.py` refuses to overwrite a loop with an empty roster, so a bad export can't wipe
 your work.
 
+### Record something measured on the ground
+
+A tape measure beats anything traced from a photograph, so an observation overrides
+the aerial value rather than merely filling a gap:
+
+```bash
+python3 pipeline/observe.py 101 --site-length 45 \
+    --pad-length 24 --pad-width 10 --backs-onto "basketball goal"
+```
+
+**Site and pad are different measurements** (ADR-0005). The site is the usable length
+a rig has to fit into, concrete and apron together — this is what Disney publishes and
+what belongs in `--site-length`. The pad is the poured concrete inside it, often far
+shorter: site 101 is 45 ft of site over a 24 ft slab. Aerial tracing produces site
+dimensions, because the slab and the apron are one surface at that resolution.
+
+These land in `data/observed.yaml`, which is human-owned — `derive.py` never touches
+it, so re-running the aerial pass cannot overwrite something you stood on the pad to
+find out.
+
 ### Add photographs
 
 Drop them in `incoming/` with any filename, then:

@@ -22,11 +22,11 @@ DEMO = False
 # Disney's published Category specs. These are category maxima, never a measurement
 # of any particular Site — which is why they are emitted with their own provenance.
 CATEGORY = {
-    "Tent/Pop-Up":    {"pad_length_ft": 25, "pad_width_ft": 10, "sewer": False},
-    "Full Hook-Up":   {"pad_length_ft": 50, "pad_width_ft": 10, "sewer": True},
-    "Preferred":      {"pad_length_ft": 45, "pad_width_ft": 10, "sewer": True},
-    "Premium":        {"pad_length_ft": 60, "pad_width_ft": 18, "sewer": True},
-    "Premium Meadow": {"pad_length_ft": 60, "pad_width_ft": 18, "sewer": True},
+    "Tent/Pop-Up":    {"site_length_ft": 25, "site_width_ft": 10, "sewer": False},
+    "Full Hook-Up":   {"site_length_ft": 50, "site_width_ft": 10, "sewer": True},
+    "Preferred":      {"site_length_ft": 45, "site_width_ft": 10, "sewer": True},
+    "Premium":        {"site_length_ft": 60, "site_width_ft": 18, "sewer": True},
+    "Premium Meadow": {"site_length_ft": 60, "site_width_ft": 18, "sewer": True},
 }
 
 def loop_meta(loop):
@@ -67,8 +67,12 @@ def measure(feature, road):
 
     site = {
         "site_number": int(props["site_number"]),
-        "pad_length_ft": round(length, 1),
-        "pad_width_ft": round(width, 1),
+        # What you trace from above is the whole hardstand — the concrete slab and
+        # the apron around it read as one surface at this resolution. That is the
+        # SITE, not the pad. Separating the poured concrete needs someone on the
+        # ground; see ADR-0005.
+        "site_length_ft": round(length, 1),
+        "site_width_ft": round(width, 1),
         "pad_orientation_deg": round(bearing, 1),
         "centroid": [round(origin[1], 6), round(origin[0], 6)],
     }
@@ -115,8 +119,8 @@ def emit(loop, sites, meta, info, demo=False):
     w("")
     w("# Disney's published Category maximum. NOT a measurement of any Site.")
     w("category_baseline:")
-    w(f"  pad_length_ft: {cat['pad_length_ft']}")
-    w(f"  pad_width_ft: {cat['pad_width_ft']}")
+    w(f"  site_length_ft: {cat['site_length_ft']}")
+    w(f"  site_width_ft: {cat['site_width_ft']}")
     w(f"  sewer: {str(cat['sewer']).lower()}")
     w("  max_occupancy: 8          # effective for arrivals from 2026-01-01")
     w("  source: disney-category")
@@ -131,7 +135,7 @@ def emit(loop, sites, meta, info, demo=False):
     for s in sites:
         s.pop("_along_ft", None)
         w(f"  - site_number: {s['site_number']}")
-        for key in ("pad_length_ft", "pad_width_ft", "pad_orientation_deg",
+        for key in ("site_length_ft", "site_width_ft", "pad_orientation_deg",
                     "road_offset_ft", "pad_surface", "backs_onto", "approach_side"):
             if key in s:
                 w(f"    {key}: {s[key]}")
@@ -215,7 +219,7 @@ def main():
     if len(sites) != expected:
         print(f"  ! count differs from the expected {expected} — worth resolving")
     if sites:
-        lens = [s["pad_length_ft"] for s in sites]
+        lens = [s["site_length_ft"] for s in sites]
         print(f"  pad length: min {min(lens)}, median {sorted(lens)[len(lens)//2]}, max {max(lens)}")
 
 
