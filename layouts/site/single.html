@@ -24,7 +24,11 @@
     <span class="chip chip-cat">{{ $loop.category }}</span>
     <span class="chip">{{ if $b.sewer }}Sewer{{ else }}No sewer{{ end }}</span>
     <span class="chip">Sleeps {{ $b.max_occupancy }}</span>
-    {{ if eq $s.number_confidence "hypothesis" }}<span class="chip chip-warn">Number unverified</span>{{ end }}
+    {{ if eq $s.number_confidence "hypothesis" }}
+      <span class="chip chip-warn">Number unverified</span>
+    {{ else if eq $s.number_confidence "verified" }}
+      <span class="chip chip-ok">Number verified</span>
+    {{ end }}
   </p>
 </div>
 
@@ -123,20 +127,48 @@
     <div class="callout" style="margin-top:1rem">
       <p><b>This site number is a hypothesis.</b> Loops are documented as numbering
       sequentially, so this number is expected rather than observed. It becomes
-      <span class="mono">verified</span> when someone photographs the post.</p>
+      <span class="mono">verified</span> when someone reads it off the loop sign or
+      photographs the post.</p>
+    </div>
+  {{ else if $loop.sign_evidence }}
+    <div class="callout is-verified" style="margin-top:1rem">
+      <p><b>This site number is verified.</b> Loop {{ $loop.loop }}'s entrance sign
+      reads &ldquo;{{ $loop.sign_evidence.reads }}&rdquo;, which puts
+      {{ $s.site_number }} inside the loop's stated range. A sign bolted to the loop
+      it describes is a primary source.</p>
     </div>
   {{ end }}
 </section>
 
 {{ with $s.notes }}<section><h2>Notes</h2><p>{{ . }}</p></section>{{ end }}
 
+{{/* Walking the loop in order is how people actually browse a campground. */}}
+{{ $prev := 0 }}{{ $next := 0 }}
+{{ range $i, $x := $loop.sites }}
+  {{ if eq $x.site_number $s.site_number }}
+    {{ if gt $i 0 }}{{ $prev = (index $loop.sites (sub $i 1)).site_number }}{{ end }}
+    {{ if lt (add $i 1) (len $loop.sites) }}
+      {{ $next = (index $loop.sites (add $i 1)).site_number }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+<nav class="neighbours">
+  {{ if $prev }}<a class="nb nb-prev" href="/site/{{ $prev }}/"><span>Previous</span><b>{{ $prev }}</b></a>{{ else }}<span></span>{{ end }}
+  <a class="nb nb-loop" href="/loop/{{ $loop.loop }}/"><span>All of</span><b>Loop {{ $loop.loop }}</b></a>
+  {{ if $next }}<a class="nb nb-next" href="/site/{{ $next }}/"><span>Next</span><b>{{ $next }}</b></a>{{ else }}<span></span>{{ end }}
+</nav>
+
 <section class="photo-wanted">
   <h2>Have you stayed on {{ $s.site_number }}?</h2>
   <p>
-    The aerial shows the pad. It can't show the shade at three in the afternoon, whether
-    the picnic table is somewhere useful, how loud the road is, or whether the ground
-    holds water. A photo from someone who stayed here is worth more than anything a
-    satellite can tell you.
+    {{ if $s.aerial }}
+      The aerial shows the pad. It can't show
+    {{ else }}
+      We don't have a photograph of this site yet — and even an aerial wouldn't show
+    {{ end }}
+    the shade at three in the afternoon, whether the picnic table is somewhere useful,
+    how loud the road is, or whether the ground holds water. A photo from someone who
+    stayed here is worth more than anything a satellite can tell you.
   </p>
   <p>
     <a class="cta" href="mailto:photos@example.invalid?subject={{ printf "Photo for site %v (Loop %v)" $s.site_number $loop.loop | urlquery }}&amp;body={{ printf "Site: %v\nLoop: %v %s\nWhen you stayed: \nRig type and length: \nAnything worth knowing: \n\n(Attaching a photo means we can publish it here, credited to you.)\n" $s.site_number $loop.loop $loop.loop_name | urlquery }}">Send a photo of site {{ $s.site_number }}</a>

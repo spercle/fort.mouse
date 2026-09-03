@@ -809,3 +809,37 @@ figure.aerial-loop figcaption { max-width: none; }
   color: var(--muted);
 }
 .loop-sign svg { width: 100%; height: auto; display: block; }
+
+/* ---------- neighbours ---------- */
+
+.neighbours {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: .6rem;
+  align-items: stretch;
+  margin: 2.5rem 0 2rem;
+}
+.nb {
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+  padding: .6rem .85rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+}
+.nb:hover { border-color: var(--accent); }
+.nb span {
+  font-family: var(--mono);
+  font-size: .62rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.nb b { font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.nb-next { text-align: right; }
+.nb-loop { text-align: center; border-left-width: 3px; border-left-color: var(--bark); }
+
+.callout.is-verified { border-left-color: var(--measured); }

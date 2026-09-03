@@ -121,14 +121,19 @@ def main():
                     own += 1
                     lengths.append(length["value"])
 
-            aerial = f"/aerial/{n}.jpg"
+            # An aerial is only this site's if we know where this site is. A file
+            # left behind from an earlier run — demo data, a since-corrected
+            # centroid — must not be shown as a photograph of the pad.
+            has_real_position = bool(site.get("centroid"))
+            aerial = f"/aerial/{n}.jpg" if has_real_position else None
             out_sites.append({
                 "site_number": n,
                 "fields": fields,
                 "number_confidence": site.get("number_confidence", "unverified"),
                 "imagery_vintage": site.get("imagery_vintage"),
                 "notes": site.get("notes"),
-                "aerial": aerial if os.path.exists(os.path.join(AERIAL, f"{n}.jpg")) else None,
+                "aerial": aerial if (aerial and os.path.exists(
+                    os.path.join(AERIAL, f"{n}.jpg"))) else None,
                 "is_measured": length["state"] == "measured",
                 "seeded_credit": credit if length.get("source") == "seeded" else None,
             })

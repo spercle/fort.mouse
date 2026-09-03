@@ -72,6 +72,13 @@ def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     done = skipped = 0
 
+    # Clear this loop's aerials first. A site whose centroid has changed or gone
+    # away must not keep an image of the ground it used to be at.
+    for site in data.get("sites", []):
+        stale = os.path.join(OUT_DIR, f"{site['site_number']}.jpg")
+        if os.path.exists(stale) and not site.get("centroid"):
+            os.remove(stale)
+
     for site in data.get("sites", []):
         centroid = site.get("centroid")   # never inferred_centroid — see infer_positions.py
         if not centroid:
