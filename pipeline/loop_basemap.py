@@ -68,8 +68,7 @@ def frame_bounds(loop):
     return west, south, east, north
 
 
-def main():
-    loop = int(sys.argv[1]) if len(sys.argv) > 1 else 100
+def cut(loop):
     west, south, east, north = frame_bounds(loop)
 
     params = {
@@ -81,18 +80,36 @@ def main():
     }
     req = urllib.request.Request(SERVICE + "?" + urllib.parse.urlencode(params),
                                  headers={"User-Agent": "fort-mouse/0.1"})
-    data = urllib.request.urlopen(req, timeout=120, context=CTX).read()
+    data = urllib.request.urlopen(req, timeout=150, context=CTX).read()
     if data[:2] != b"\xff\xd8":
-        sys.exit("server did not return a JPEG")
+        raise RuntimeError("server did not return a JPEG")
 
     os.makedirs(OUT, exist_ok=True)
     dest = os.path.join(OUT, f"{loop}.jpg")
     open(dest, "wb").write(data)
 
     span_ft = (east - west) * math.cos(math.radians(south)) * math.radians(1) * EARTH_FT
-    print(f"  loop {loop}: {len(data):,}B  {W*2}x{H*2}px covering {span_ft:.0f} ft across")
-    print(f"  bbox {west:.6f},{south:.6f} -> {east:.6f},{north:.6f}")
-    print(f"  -> {dest}")
+    print(f"  loop {loop:<5} {len(data):>9,}B  covering {span_ft:>4.0f} ft across")
+    return len(data)
+
+
+def main():
+    import time
+    if len(sys.argv) > 1:
+        loops = [int(a) for a in sys.argv[1:]]
+    else:
+        loops = sorted(int(f.split("-")[1]) for f in os.listdir(REF)
+                       if f.endswith("-osm-road.geojson"))
+    total = 0
+    for i, loop in enumerate(loops):
+        try:
+            total += cut(loop)
+        except Exception as exc:
+            print(f"  loop {loop:<5} FAILED {exc}")
+        # the county GIS server is a public service, not a CDN
+        if i < len(loops) - 1:
+            time.sleep(1.0)
+    print(f"\n{len(loops)} basemap(s), {total/1e6:.1f} MB -> static/loop-base/")
 
 
 if __name__ == "__main__":
