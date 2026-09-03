@@ -152,6 +152,18 @@ build time:
 python3 pipeline/loop_maps.py
 ```
 
+### Change the icon
+
+The mark lives in `static/icon.svg` and is redrawn in `pipeline/icons.py`. Edit the
+shapes in both, then:
+
+```bash
+python3 pipeline/icons.py     # ~10s, writes all six PNG sizes
+```
+
+There is no ImageMagick or Pillow here and none is needed — `icons.py` contains its own
+rasteriser and PNG writer, so the icons rebuild anywhere Python runs.
+
 ### Check everything is sane
 
 ```bash
@@ -181,6 +193,7 @@ digitizing mistake, not a discovery, and the build stops.
 | `validate.py` | Schema and sanity checks |
 | `test_geom.py` | Prove the oriented-bounding-box maths against known pads |
 | `demo.py` | Synthetic measurements for previewing the layout. Stamps `status: demo` |
+| `icons.py` | Rasterise the favicon and mobile icons from scratch — no image library needed |
 
 Start with [`pipeline/README.md`](pipeline/README.md) for the digitizing workflow.
 

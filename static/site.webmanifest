@@ -1,0 +1,16 @@
+{
+  "name": "fort.mouse — measured campsite data for Fort Wilderness",
+  "short_name": "fort.mouse",
+  "description": "Measured pad dimensions, orientation and back-in difficulty for the individual campsites at Disney's Fort Wilderness.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f2ecdd",
+  "theme_color": "#43301f",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
