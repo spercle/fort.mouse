@@ -174,9 +174,10 @@ def main():
         with open(os.path.join(OUT, "credits.yaml"), "w") as fh:
             fh.write(open(src).read())
 
-    static = os.path.join(ROOT, "static")
-    os.makedirs(static, exist_ok=True)
-    json.dump(index, open(os.path.join(static, "search-index.json"), "w"))
+    # assets/, not static/, so Hugo can fingerprint it — see baseof.html.
+    assets = os.path.join(ROOT, "assets")
+    os.makedirs(assets, exist_ok=True)
+    json.dump(index, open(os.path.join(assets, "search-index.json"), "w"))
     print(f"\n{totals['sites']} sites across {len(loops)} loop(s) -> data/resolved/")
     print(f"  {totals['own']} measured by us, {totals['seeded']} still seeded")
 

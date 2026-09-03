@@ -15,7 +15,11 @@
       if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
     } catch (e) {}
   </script>
-  <link rel="stylesheet" href="{{ "css/site.css" | relURL }}">
+  {{/* Fingerprinted: the URL carries a hash of the file, so a changed stylesheet
+       can never be served from a stale cache, and an unchanged one stays cached. */}}
+  {{ $css := resources.Get "css/site.css" | minify | fingerprint "sha256" }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}"
+        integrity="{{ $css.Data.Integrity }}">
 
   {{/* SVG first for browsers that take it; PNGs for those that don't, and for iOS,
        which ignores the manifest and wants apple-touch-icon at 180. */}}
@@ -99,7 +103,8 @@
       });
     })();
 
-    const SEARCH_INDEX = "{{ "search-index.json" | relURL }}";
+    {{ $idx := resources.Get "search-index.json" | fingerprint "sha256" }}
+    const SEARCH_INDEX = "{{ $idx.RelPermalink }}";
     const SITE_BASE = "{{ "site/" | relURL }}";
     // 846 records is nothing, so the lookup runs entirely in the browser.
     const form = document.getElementById("lookup");
