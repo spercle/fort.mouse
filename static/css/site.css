@@ -444,7 +444,7 @@ figure.aerial figcaption {
 
 .site-chip[data-seeded="true"] { border-left-color: var(--absent); }
 
-figure.aerial-loop img { max-width: 100%; }
+
 
 /* ---------- photo request ---------- */
 
@@ -627,3 +627,52 @@ figure.aerial img {
   padding: 1.1rem clamp(1rem, 3vw, 1.5rem) 1.25rem;
 }
 .photo-wanted h2 { margin-bottom: .5rem; }
+
+/* ---------- loop page: the entrance sign ---------- */
+
+.marker-loop { flex-wrap: wrap; align-items: baseline; }
+.marker-name {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(.95rem, 2.4vw, 1.25rem);
+  letter-spacing: .02em;
+  color: var(--ink-2);
+  padding-left: .55rem;
+  border-left: 1px solid var(--rule-strong);
+}
+
+.chip-ok { border-color: var(--measured); color: var(--measured); background: var(--measured-soft); }
+
+.callout.is-note { border-left-color: var(--bark); }
+
+/* site chips as a rack of small numbered markers */
+.site-chip {
+  border: 1px solid var(--rule-strong);
+  border-left: 3px solid var(--bark);
+  border-radius: 2px;
+  background: var(--surface);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16);
+  padding: .5rem .65rem;
+}
+:root:not([data-theme="light"]) .site-chip {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+.site-chip[data-measured="true"] { border-left-color: var(--measured); }
+.site-chip[data-seeded="true"] { border-left-color: var(--absent); }
+.site-chip b { font-family: var(--display); font-weight: 700; font-size: 1rem; }
+.site-chip:hover { border-color: var(--accent); border-left-color: var(--accent); }
+
+/* the loop aerial, mounted like the site one */
+/* A square 900px aerial at full page width is taller than the viewport. The loop
+   aerial reads better as a banner — the loop shape is already in the map above. */
+figure.aerial-loop img {
+  border: 3px solid var(--bark);
+  border-radius: 3px;
+  width: 100%;
+  max-width: 100%;
+  max-height: 380px;
+  object-fit: cover;
+  object-position: center;
+}
+figure.aerial-loop figcaption { max-width: none; }
+.loop-map { border: 3px solid var(--bark); border-radius: 3px; overflow: hidden; }

@@ -6,9 +6,28 @@
 {{ end }}
 
 <section>
-  <p class="eyebrow"><a href="/">All loops</a></p>
-  <h1>Loop {{ $loop.loop }}</h1>
-  <p class="site-sub">{{ $loop.loop_name }} · {{ $loop.category }}</p>
+  <p class="eyebrow trail"><a href="/">All loops</a></p>
+
+  {{/* One board, the way a loop entrance sign actually reads. */}}
+  <h1 class="marker marker-loop">
+    <span class="marker-label">Loop</span>
+    <span class="marker-num">{{ $loop.loop }}</span>
+    <span class="marker-name">{{ $loop.loop_name }}</span>
+  </h1>
+
+  <p class="chips">
+    <span class="chip chip-cat">{{ $loop.category }}</span>
+    <span class="chip">{{ if $b.sewer }}Sewer{{ else }}No sewer{{ end }}</span>
+    <span class="chip">Up to {{ $b.pad_length_ft }} × {{ $b.pad_width_ft }} ft</span>
+    {{ if $loop.own_count }}
+      <span class="chip chip-ok">{{ $loop.own_count }} of {{ $loop.site_count }} measured</span>
+    {{ else }}
+      <span class="chip">Not yet measured</span>
+    {{ end }}
+    {{ if $loop.loop_note }}
+      {{ if in $loop.loop_note "Closed" }}<span class="chip chip-warn">Closed</span>{{ end }}
+    {{ end }}
+  </p>
 
   <div class="verdict" style="margin-top:1.25rem">
     <div class="fact" data-state="measured"><span class="fact-v">{{ $loop.site_count }}</span><span class="fact-k">Sites</span></div>
@@ -52,7 +71,7 @@
 {{ end }}
 
 {{ with $loop.loop_note }}
-<div class="callout"><p>{{ . }}</p></div>
+<div class="callout is-note"><p><b>About this loop.</b> {{ . }}</p></div>
 {{ end }}
 
 <section>
