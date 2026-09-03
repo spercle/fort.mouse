@@ -215,6 +215,20 @@ Every site in that loop becomes `number_confidence: verified`, the loop page cit
 sign, and the drawn sign drops its "not yet read off the real sign" caveat. This is the
 cheapest possible upgrade to the data — one photo settles a whole loop's numbering.
 
+### Add an aerial view to a loop map
+
+Cut a basemap for the loop, then redraw. `loop_maps.py` produces a second `-aerial.svg`
+for any loop that has one, and the loop page grows a Drawn / Aerial switch:
+
+```bash
+python3 pipeline/loop_basemap.py 100
+python3 pipeline/loop_maps.py
+```
+
+The aerial is cut to exactly the drawn map's frame bounds, so the two share a coordinate
+system and can be compared pad for pad. Drawn stays the default — it reads better; the
+aerial is what you check it against.
+
 ### Change the icon
 
 The mark lives in `static/icon.svg` and is redrawn in `pipeline/icons.py`. Edit the

@@ -977,3 +977,30 @@ footer nav a:hover { color: var(--accent); }
 }
 .themetoggle:hover { color: var(--accent); border-color: var(--accent); }
 .themetoggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- map style switch ---------- */
+
+.maphead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+.maphead h2 { margin: 0; }
+
+.mapswitch { display: flex; border: 1px solid var(--rule-strong); border-radius: 2px; }
+.mapswitch button {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .42rem .8rem;
+  border: 0;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+.mapswitch button + button { border-left: 1px solid var(--rule-strong); }
+.mapswitch button[aria-pressed="true"] { background: var(--bark); color: #f1ece0; }
+.mapswitch button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }

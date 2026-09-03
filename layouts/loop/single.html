@@ -57,14 +57,56 @@
 </section>
 
 {{ $map := printf "static/loop-map/%v.svg" $loop.loop }}
+{{ $aerial := printf "static/loop-map/%v-aerial.svg" $loop.loop }}
 {{ if fileExists $map }}
-<section>
-  <h2>The loop, to scale</h2>
-  <div class="loop-map">{{ readFile $map | safeHTML }}</div>
-  <p class="fallback">
+<section class="mapsection">
+  <div class="maphead">
+    <h2>The loop, to scale</h2>
+    {{ if fileExists $aerial }}
+      {{/* Drawn is the default; the aerial is what you check it against. */}}
+      <div class="mapswitch" role="group" aria-label="Map style">
+        <button type="button" data-view="drawn" aria-pressed="true">Drawn</button>
+        <button type="button" data-view="aerial" aria-pressed="false">Aerial</button>
+      </div>
+    {{ end }}
+  </div>
+
+  <div class="loop-map" data-view="drawn">{{ readFile $map | safeHTML }}</div>
+  {{ if fileExists $aerial }}
+    <div class="loop-map" data-view="aerial" hidden>{{ readFile $aerial | safeHTML }}</div>
+  {{ end }}
+
+  <p class="fallback" data-cap="drawn">
     Drawn from OpenStreetMap road geometry and Orange County's public address-range
     record. Not traced from anyone's map.
   </p>
+  {{ if fileExists $aerial }}
+    <p class="fallback" data-cap="aerial" hidden>
+      Orange County 2025 orthoimagery, cut to exactly this map's bounds so the drawing
+      and the photograph share one coordinate system. The dashed line is the mapped
+      road. Site positions are still provisional — markers, not measured pads.
+    </p>
+    <script>
+      (function () {
+        var sec = document.currentScript.closest(".mapsection");
+        sec.querySelectorAll(".mapswitch button").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var want = b.dataset.view;
+            sec.querySelectorAll(".mapswitch button").forEach(function (o) {
+              o.setAttribute("aria-pressed", String(o.dataset.view === want));
+            });
+            sec.querySelectorAll("[data-view]").forEach(function (el) {
+              if (el.tagName === "BUTTON") return;
+              el.hidden = el.dataset.view !== want;
+            });
+            sec.querySelectorAll("[data-cap]").forEach(function (el) {
+              el.hidden = el.dataset.cap !== want;
+            });
+          });
+        });
+      })();
+    </script>
+  {{ end }}
 </section>
 {{ end }}
 

@@ -227,7 +227,7 @@ def draw_thumb(loop_no, road_coords):
         W, H, PAD = ow, oh, op
 
 
-def draw(loop_no, name, category, road_coords, segments):
+def draw(loop_no, name, category, road_coords, segments, use_base=False):
     origin = (road_coords[0][0], road_coords[0][1])
     road_ft = to_ft(road_coords, origin)
     pads = load_pads(loop_no, origin)
@@ -247,8 +247,12 @@ def draw(loop_no, name, category, road_coords, segments):
     total_ft = sum(math.dist(road_ft[i], road_ft[i + 1])
                    for i in range(len(road_ft) - 1))
 
-    photo_cls = ' class="photo"' if os.path.exists(
-        os.path.join(ROOT, "static", "loop-base", f"{loop_no}.jpg")) else ''
+    # Cut to exactly this frame's bounds by loop_basemap.py, so the photograph and
+    # the drawing share one coordinate system and every pad sits on real ground.
+    base = os.path.join(ROOT, "static", "loop-base", f"{loop_no}.jpg")
+    has_base = use_base and os.path.exists(base)
+
+    photo_cls = ' class="photo"' if has_base else ''
     svg = [f'<svg xmlns="http://www.w3.org/2000/svg"{photo_cls} viewBox="0 0 {W} {H}" '
            f'role="img" aria-label="Campground map of Loop {loop_no}, {name}">',
            f'<style>{STYLE}</style>',
@@ -257,10 +261,6 @@ def draw(loop_no, name, category, road_coords, segments):
            f'<rect class="bg" width="{W}" height="{H}"/>',
            f'<g clip-path="url(#clip{loop_no})">']
 
-    # Cut to exactly this frame's bounds by loop_basemap.py, so the photograph and
-    # the drawing share one coordinate system and every pad sits on real ground.
-    base = os.path.join(ROOT, "static", "loop-base", f"{loop_no}.jpg")
-    has_base = os.path.exists(base)
     if has_base:
         svg.append(f'<image href="/loop-base/{loop_no}.jpg" x="0" y="0" '
                    f'width="{W}" height="{H}" preserveAspectRatio="none"/>')
@@ -423,6 +423,14 @@ def main():
         open(os.path.join(OUT, f"{loop_no}-thumb.svg"), "w").write(
             draw_thumb(loop_no, coords))
         made += 1
+
+        # Where an aerial has been cut, produce a second version over it. The drawn
+        # map is what you read; the aerial is what you check it against.
+        if os.path.exists(os.path.join(ROOT, "static", "loop-base", f"{loop_no}.jpg")):
+            open(os.path.join(OUT, f"{loop_no}-aerial.svg"), "w").write(
+                draw(loop_no, meta.get("loop_name", "?"), meta.get("category", "?"),
+                     coords, segs, use_base=True))
+            print(f"         + aerial version")
         n = len(load_pads(loop_no, (coords[0][0], coords[0][1])))
         print(f"  loop {loop_no}: {n} pads, {len(load_context(loop_no))} context features")
     print(f"\n{made} loop maps -> static/loop-map/")
