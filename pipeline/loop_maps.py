@@ -55,6 +55,11 @@ STYLE = """
             stroke-width: 1; }
   .pad-i  { fill: var(--map-pad, #e6dcc4); stroke: var(--map-pad-e, #b9a97f);
             stroke-width: 1; stroke-dasharray: 3 2.5; opacity: .9; }
+  .cabin-l{ font: 600 10px 'IBM Plex Mono', ui-monospace, monospace;
+            fill: var(--map-ink, #3b3a2f); text-anchor: middle; }
+  .cabin-k{ font: 600 7.5px 'IBM Plex Mono', ui-monospace, monospace;
+            fill: var(--map-ink2, #6f6e5c); text-anchor: middle;
+            letter-spacing: .12em; }
   .num    { font: 600 9.5px 'IBM Plex Mono', ui-monospace, monospace;
             fill: var(--map-ink, #3b3a2f); text-anchor: middle; }
   .cs     { fill: var(--accent, #b8461c); }
@@ -249,7 +254,16 @@ def draw(loop_no, name, category, road_coords, segments):
     for f in by("road"):
         svg.append(f'<path class="other" d="{path_d(frame(f["_ft"]))}"/>')
     for f in by("building"):
-        svg.append(f'<path class="bldg" d="{path_d(frame(f["_ft"]), True)}"/>')
+        px = frame(f["_ft"])
+        svg.append(f'<path class="bldg" d="{path_d(px, True)}"/>')
+        # A named cabin inside a campsite loop explains a gap in the numbering.
+        nm = (f["properties"].get("name") or "")
+        if nm.lower().startswith("cabin"):
+            cx = sum(x for x, _ in px) / len(px)
+            cy = sum(y for _, y in px) / len(px)
+            svg.append(f'<text class="cabin-l" x="{cx:.1f}" y="{cy+3:.1f}">'
+                       f'{nm.replace("cabin ", "").strip()}</text>')
+            svg.append(f'<text class="cabin-k" x="{cx:.1f}" y="{cy+15:.1f}">CABIN</text>')
 
     # name the neighbouring loops, so the reader can place themselves
     for f in by("road"):

@@ -70,6 +70,13 @@ BASELINE = {
     "Premium Meadow": (60, 18, True),
 }
 
+# Numbers inside a campsite loop that are NOT campsites. Cabins are out of scope,
+# and a cabin given a campsite page gets a provisional pad drawn on top of a real
+# building. Evidence: OpenStreetMap carries these as named building footprints.
+NOT_CAMPSITES = {
+    100: {118: "cabin", 120: "cabin"},
+}
+
 # Loops whose site-number range has been read off the entrance sign itself. This is
 # a primary source and overrides the third-party counts everywhere they disagree.
 SIGN_VERIFIED = {
@@ -84,8 +91,10 @@ NOTES = {
           "others. Premium Meadow was introduced in January 2020.",
     2100: "Converted from cabins to campsites around 2016. Stale sources still list "
           "2100-2800 as cabins.",
-    100:  "Contains two cabins, 118 and 120, interleaved among the campsites. The "
-          "roster below does not account for them.",
+    100:  "Contains two cabins, 118 and 120, interleaved among the campsites. They "
+          "are excluded from the roster below — OpenStreetMap carries both as named "
+          "building footprints. TouringPlans counts 27 here, which includes them; "
+          "this loop has 25 campsites.",
     700:  "Closed 2026-08-31 to late September 2026 for utility work.",
 }
 
@@ -292,7 +301,7 @@ def main():
             w("")
         w("# Count is TouringPlans' and is not authoritative; campground totals are")
         w("# contested across every published source.")
-        w(f"expected_site_count: {count}")
+        w(f"expected_site_count: {count - len(NOT_CAMPSITES.get(loop, {}))}")
         w("")
         verified = SIGN_VERIFIED.get(loop)
         if verified:
@@ -310,15 +319,22 @@ def main():
         w("sites:")
         first = verified["first"] if verified else loop + 1
         confidence = "verified" if verified else "hypothesis"
-        for i in range(count):
-            w(f"  - site_number: {first + i}")
+        excluded = NOT_CAMPSITES.get(loop, {})
+        numbers = [n for n in range(first, first + count) if n not in excluded]
+        if excluded:
+            w(f"# {len(excluded)} number(s) in this loop are not campsites and are")
+            w("# excluded from the roster:")
+            for n, what in sorted(excluded.items()):
+                w(f"#   {n} — {what}, per OpenStreetMap building footprint")
+        for n in numbers:
+            w(f"  - site_number: {n}")
             w("    pad_length_ft: unmeasured")
             w("    pad_width_ft: unmeasured")
             w("    pad_orientation_deg: unmeasured")
             w("    backs_onto: unknown")
             w(f"    number_confidence: {confidence}")
             w("    source: none")
-            keep = carried.get(first + i)
+            keep = carried.get(n)
             if keep:
                 w(f"    inferred_centroid: [{keep[0]}, {keep[1]}]")
         if loop == 1200:
