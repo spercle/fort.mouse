@@ -266,6 +266,7 @@ def draw(loop_no, name, category, road_coords, segments):
     svg.append(f'<path class="road" d="{path_d(road_px)}"/>')
 
     # pads, squared to the nearest stretch of road, each with a driveway stub
+    placed_nums = []
     for p in pads:
         bearing, road_mid = nearest_road(p["ft"], road_ft)
         rot = p["bearing"] if p["bearing"] is not None else (bearing + 90) % 180
@@ -279,7 +280,10 @@ def draw(loop_no, name, category, road_coords, segments):
         svg.append(f'<g transform="translate({px:.1f} {py:.1f}) rotate({rot:.1f})">'
                    f'<rect class="{cls}" x="{-Wd/2:.1f}" y="{-L/2:.1f}" '
                    f'width="{Wd:.1f}" height="{L:.1f}" rx="1.5"/></g>')
-        svg.append(f'<text class="num" x="{px:.1f}" y="{py+3.3:.1f}">{p["number"]}</text>')
+        if all(abs(px - ox) > 22 or abs(py - oy) > 11 for ox, oy in placed_nums):
+            placed_nums.append((px, py))
+            svg.append(f'<text class="num" x="{px:.1f}" y="{py+3.3:.1f}">'
+                       f'{p["number"]}</text>')
 
     # comfort stations — the amenity every campground map marks. Some are mapped as
     # nodes and some as building outlines, so reduce whatever came back to a point.
@@ -289,7 +293,14 @@ def draw(loop_no, name, category, road_coords, segments):
         cy = sum(y for _, y in px) / len(px)
         svg.append(f'<circle class="cs" cx="{cx:.1f}" cy="{cy:.1f}" r="9"/>')
         svg.append(f'<text class="cs-t" x="{cx:.1f}" y="{cy+3:.1f}">WC</text>')
-        svg.append(f'<text class="cs-l" x="{cx:.1f}" y="{cy+21:.1f}">COMFORT STATION</text>')
+        # Keep the caption out of the title block and the footer strip, where it
+        # was overprinting "Loop 100" and the provenance line.
+        ly = cy + 21
+        if ly > H - 40:
+            ly = cy - 15
+        in_title = cy < PAD + 20 and cx < W * 0.5
+        if not in_title:
+            svg.append(f'<text class="cs-l" x="{cx:.1f}" y="{ly:.1f}">COMFORT STATION</text>')
 
     ex, ey = road_px[0]
     svg.append(f'<circle class="cs" cx="{ex:.1f}" cy="{ey:.1f}" r="5"/>')

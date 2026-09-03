@@ -22,6 +22,9 @@ import sys
 
 import yaml
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from geom import point_to_polyline_ft
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import json
 
@@ -71,9 +74,23 @@ def one(loop):
         dx = (pts[j + 1][0] - pts[j][0]) * cos
         dy = pts[j + 1][1] - pts[j][1]
         m = math.hypot(dx, dy) or 1e-12
+
+        def place(side):
+            return (lat + (dx / m) * off_deg * side,
+                    lon - (dy / m) * off_deg * side / cos)
+
+        # Alternating sides collapses on a tight loop: offsetting inward by 52 ft
+        # on an oval only ~150 ft across pushes those pads into the middle, where
+        # they pile on top of each other. Keep a side only if the resulting point
+        # is still genuinely that far from the road; otherwise use the other side.
         side = 1 if i % 2 == 0 else -1
-        site["inferred_centroid"] = [round(lat + (dx / m) * off_deg * side, 6),
-                                     round(lon - (dy / m) * off_deg * side / cos, 6)]
+        cand_lat, cand_lon = place(side)
+        actual, _ = point_to_polyline_ft([cand_lon, cand_lat], pts)
+        if actual < OFFSET_FT * 0.75:
+            side = -side
+            cand_lat, cand_lon = place(side)
+
+        site["inferred_centroid"] = [round(cand_lat, 6), round(cand_lon, 6)]
 
     data["positions_inferred"] = True
     with open(path, "w") as fh:
