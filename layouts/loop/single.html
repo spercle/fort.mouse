@@ -29,6 +29,11 @@
     {{ end }}
   </p>
 
+  {{ $sign := printf "static/loop-sign/%v.svg" $loop.loop }}
+  {{ if fileExists $sign }}
+    <div class="loop-sign">{{ readFile $sign | safeHTML }}</div>
+  {{ end }}
+
   <div class="verdict" style="margin-top:1.25rem">
     <div class="fact" data-state="measured"><span class="fact-v">{{ $loop.site_count }}</span><span class="fact-k">Sites</span></div>
     <div class="fact" data-state="{{ if $loop.own_count }}measured{{ else }}unmeasured{{ end }}"><span class="fact-v">{{ $loop.own_count }}</span><span class="fact-k">Measured by us</span></div>
@@ -41,6 +46,13 @@
   <p class="fallback">
     Disney lists {{ $loop.category }} at up to {{ $b.pad_length_ft }} × {{ $b.pad_width_ft }} ft
     — a category maximum, not a measurement of any site here.
+    {{ with $loop.sign_evidence }}
+      Site range read from the loop's own entrance sign, which reads
+      &ldquo;{{ .reads }}&rdquo;.
+    {{ else }}
+      The site range on the sign above is inferred from sequential numbering, not read
+      off the real sign.
+    {{ end }}
   </p>
 </section>
 

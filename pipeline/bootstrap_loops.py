@@ -51,7 +51,7 @@ LOOPS = {
     1300: ("Tumbleweed Turn", "Premium", 34),
     1400: ("Little Bear Path", "Premium Meadow", 61),
     1500: ("Cottontail Curl", "Tent/Pop-Up", 21),
-    1600: ("Timber Trail", "Full Hook-Up", 45),
+    1600: ("Timber Trail", "Full Hook-Up", 46),   # observed on the loop sign
     1700: ("Hickory Hollow", "Full Hook-Up", 41),
     1800: ("Conestoga Trail", "Full Hook-Up", 32),
     1900: ("Wagon Wheel Way", "Full Hook-Up", 38),
@@ -68,6 +68,15 @@ BASELINE = {
     "Preferred":      (45, 10, True),
     "Premium":        (60, 18, True),
     "Premium Meadow": (60, 18, True),
+}
+
+# Loops whose site-number range has been read off the entrance sign itself. This is
+# a primary source and overrides the third-party counts everywhere they disagree.
+SIGN_VERIFIED = {
+    1600: {"first": 1601, "last": 1646,
+           "evidence": "docs/evidence/loop-1600-sign.jpeg",
+           "note": "Entrance sign reads 'Timber Trail 1601 - 1646'. TouringPlans "
+                   "lists 45 sites for this loop; the sign shows 46."},
 }
 
 NOTES = {
@@ -274,17 +283,29 @@ def main():
         w("# contested across every published source.")
         w(f"expected_site_count: {count}")
         w("")
-        w("# HYPOTHESIS ONLY. Loops are documented as numbering sequentially from N01,")
-        w("# so this roster is an expectation, not an observation.")
+        verified = SIGN_VERIFIED.get(loop)
+        if verified:
+            w("# VERIFIED from the loop's own entrance sign — a primary source.")
+            w("sign_evidence:")
+            w(f"  photo: {verified['evidence']}")
+            w(f"  reads: \"{street} {verified['first']} - {verified['last']}\"")
+            w(f"  note: >-")
+            w(f"    {verified['note']}")
+            w("")
+        else:
+            w("# HYPOTHESIS ONLY. Loops are documented as numbering sequentially from N01,")
+            w("# so this roster is an expectation, not an observation.")
         w("site_count: 0")
         w("sites:")
+        first = verified["first"] if verified else loop + 1
+        confidence = "verified" if verified else "hypothesis"
         for i in range(count):
-            w(f"  - site_number: {loop + 1 + i}")
+            w(f"  - site_number: {first + i}")
             w("    pad_length_ft: unmeasured")
             w("    pad_width_ft: unmeasured")
             w("    pad_orientation_deg: unmeasured")
             w("    backs_onto: unknown")
-            w("    number_confidence: hypothesis")
+            w(f"    number_confidence: {confidence}")
             w("    source: none")
         if loop == 1200:
             w("")

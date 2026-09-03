@@ -152,6 +152,31 @@ build time:
 python3 pipeline/loop_maps.py
 ```
 
+### Record a site range read off a real sign
+
+A loop's entrance sign states its site-number range, which makes it a **primary source**
+that beats any published count. Photograph it, drop the photo in `docs/evidence/`, and
+add the loop to `SIGN_VERIFIED` in `pipeline/bootstrap_loops.py`:
+
+```python
+SIGN_VERIFIED = {
+    1600: {"first": 1601, "last": 1646,
+           "evidence": "docs/evidence/loop-1600-sign.jpeg",
+           "note": "Entrance sign reads 'Timber Trail 1601 - 1646'. TouringPlans "
+                   "lists 45 sites for this loop; the sign shows 46."},
+}
+```
+
+```bash
+python3 pipeline/bootstrap_loops.py --force
+python3 pipeline/infer_positions.py 1600
+python3 pipeline/loop_signs.py
+```
+
+Every site in that loop becomes `number_confidence: verified`, the loop page cites the
+sign, and the drawn sign drops its "not yet read off the real sign" caveat. This is the
+cheapest possible upgrade to the data — one photo settles a whole loop's numbering.
+
 ### Change the icon
 
 The mark lives in `static/icon.svg` and is redrawn in `pipeline/icons.py`. Edit the
@@ -194,6 +219,7 @@ digitizing mistake, not a discovery, and the build stops.
 | `test_geom.py` | Prove the oriented-bounding-box maths against known pads |
 | `demo.py` | Synthetic measurements for previewing the layout. Stamps `status: demo` |
 | `icons.py` | Rasterise the favicon and mobile icons from scratch — no image library needed |
+| `loop_signs.py` | Draw each loop's entrance sign, with its site-number range |
 
 Start with [`pipeline/README.md`](pipeline/README.md) for the digitizing workflow.
 

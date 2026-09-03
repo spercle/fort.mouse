@@ -144,6 +144,7 @@ def main():
             "county_record": loop.get("county_record"),
             "road_length_ft": loop.get("road_length_ft") or loop.get("road_length_ft_osm"),
             "loop_note": loop.get("loop_note"),
+            "sign_evidence": loop.get("sign_evidence"),
             "aerial": (f"/loop-aerial/{loop_no}.jpg"
                        if os.path.exists(os.path.join(ROOT, "static", "loop-aerial",
                                                       f"{loop_no}.jpg")) else None),

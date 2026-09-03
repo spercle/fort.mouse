@@ -1,451 +1,339 @@
+# Loop 1700 — Hickory Hollow
+#
+# SEED — nothing here is measured. Regenerate from digitized pads with:
+#   python3 pipeline/derive.py 1700 work/loop-1700-pads.geojson
+# MACHINE-OWNED. Human notes live in data/sites/*.md. See ADR-0002.
+
 loop: 1700
 loop_name: Hickory Hollow
 category: Full Hook-Up
 generated: 2026-09-02
 status: unmeasured
+
+# Disney's published Category maximum. NOT a measurement of any Site.
 category_baseline:
   pad_length_ft: 50
   pad_width_ft: 10
   sewer: true
-  max_occupancy: 8
+  max_occupancy: 8          # effective for arrivals from 2026-01-01
   source: disney-category
+
+# Loop identity and number blocks from Orange County's public
+# address-range record — not from any fan map. See ADR-0001.
 county_record:
   source: county-record
   service: ocgis4.ocfl.net/arcgis/rest/services/AGOL_Open_Data/MapServer/1
   retrieved: 2026-09-02
   segments:
-  - theoretical_left:
-    - 1700
-    - 1710
-    theoretical_right:
-    - 1701
-    - 1711
-    from: Timber Trail
-    to: null
-    length_ft: 154.4
-  - theoretical_left:
-    - 1752
-    - 1798
-    theoretical_right:
-    - 1753
-    - 1799
-    from: Hickory Hollow
-    to: Hickory Hollow
-    length_ft: 742.0
-  caveat: ACTUAL ranges are 0 in the source, so only THEORETICAL block allocations are known. Even-left/odd-right
-    is the county's own convention and is NOT Disney's site numbering.
+    - theoretical_left: [1700, 1710]
+      theoretical_right: [1701, 1711]
+      from: "Timber Trail"
+      to: null
+      length_ft: 154.4
+    - theoretical_left: [1752, 1798]
+      theoretical_right: [1753, 1799]
+      from: "Hickory Hollow"
+      to: "Hickory Hollow"
+      length_ft: 742.0
+  caveat: >-
+    ACTUAL ranges are 0 in the source, so only THEORETICAL block
+    allocations are known. Even-left/odd-right is the county's own
+    convention and is NOT Disney's site numbering.
+
 road_length_ft_osm: 1419.9
+
+# Count is TouringPlans' and is not authoritative; campground totals are
+# contested across every published source.
 expected_site_count: 41
+
+# HYPOTHESIS ONLY. Loops are documented as numbering sequentially from N01,
+# so this roster is an expectation, not an observation.
 site_count: 0
 sites:
-- site_number: 1701
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403197
-  - -81.555292
-- site_number: 1702
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403407
-  - -81.555537
-- site_number: 1703
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403135
-  - -81.555416
-- site_number: 1704
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403269
-  - -81.555721
-- site_number: 1705
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403014
-  - -81.555541
-- site_number: 1706
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403025
-  - -81.555882
-- site_number: 1707
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402918
-  - -81.555565
-- site_number: 1708
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402858
-  - -81.555889
-- site_number: 1709
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402654
-  - -81.555634
-- site_number: 1710
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402738
-  - -81.555961
-- site_number: 1711
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402494
-  - -81.55577
-- site_number: 1712
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402591
-  - -81.556094
-- site_number: 1713
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402349
-  - -81.555893
-- site_number: 1714
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402398
-  - -81.556216
-- site_number: 1715
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402267
-  - -81.555921
-- site_number: 1716
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402145
-  - -81.556233
-- site_number: 1717
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402148
-  - -81.555886
-- site_number: 1718
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.401921
-  - -81.556108
-- site_number: 1719
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402032
-  - -81.555781
-- site_number: 1720
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.401739
-  - -81.555836
-- site_number: 1721
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402
-  - -81.555667
-- site_number: 1722
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.401713
-  - -81.555588
-- site_number: 1723
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402003
-  - -81.555564
-- site_number: 1724
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.401797
-  - -81.555316
-- site_number: 1725
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402092
-  - -81.555417
-- site_number: 1726
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402021
-  - -81.555109
-- site_number: 1727
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402148
-  - -81.555398
-- site_number: 1728
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402261
-  - -81.555082
-- site_number: 1729
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402339
-  - -81.555411
-- site_number: 1730
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402441
-  - -81.55509
-- site_number: 1731
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402549
-  - -81.55541
-- site_number: 1732
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402591
-  - -81.555077
-- site_number: 1733
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402796
-  - -81.555335
-- site_number: 1734
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402725
-  - -81.555002
-- site_number: 1735
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402962
-  - -81.555215
-- site_number: 1736
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.402935
-  - -81.554869
-- site_number: 1737
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403034
-  - -81.555178
-- site_number: 1738
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403164
-  - -81.55487
-- site_number: 1739
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403168
-  - -81.555221
-- site_number: 1740
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403409
-  - -81.555045
-- site_number: 1741
-  pad_length_ft: unmeasured
-  pad_width_ft: unmeasured
-  pad_orientation_deg: unmeasured
-  backs_onto: unknown
-  number_confidence: hypothesis
-  source: none
-  inferred_centroid:
-  - 28.403199
-  - -81.555269
-positions_inferred: true
+  - site_number: 1701
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1702
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1703
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1704
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1705
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1706
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1707
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1708
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1709
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1710
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1711
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1712
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1713
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1714
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1715
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1716
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1717
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1718
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1719
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1720
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1721
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1722
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1723
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1724
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1725
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1726
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1727
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1728
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1729
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1730
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1731
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1732
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1733
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1734
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1735
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1736
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1737
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1738
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1739
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1740
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
+  - site_number: 1741
+    pad_length_ft: unmeasured
+    pad_width_ft: unmeasured
+    pad_orientation_deg: unmeasured
+    backs_onto: unknown
+    number_confidence: hypothesis
+    source: none
