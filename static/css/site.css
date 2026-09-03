@@ -47,6 +47,25 @@
   }
 }
 
+:root[data-theme="dark"] {
+  --ground: #11150f;
+  --surface: #191e15;
+  --surface-sunk: #22271b;
+  --ink: #ece5d3;
+  --ink-2: #c2bda8;
+  --muted: #8e8b74;
+  --rule: #2c3223;
+  --rule-strong: #464b34;
+  --accent: #e07a41;
+  --measured: #79c38a;
+  --measured-soft: #182a1c;
+  --absent: #d0b566;
+  --absent-soft: #2b2416;
+
+  --bark: #6b533a;
+  --canvas-line: rgba(220, 200, 150, .028);
+}
+
 :root {
   /* Without this, iOS Safari renders form controls with its default light chrome
      even in dark mode — the site-number input comes out white on a dark masthead. */
@@ -115,8 +134,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   /* routed sign: the lettering sits below the surface */
   text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
 }
-:root:not([data-theme="light"]) .brand { text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
-@media (prefers-color-scheme: light) { .brand { text-shadow: 0 1px 0 rgba(255,255,255,.35); } }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brand { text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
+}
+:root[data-theme="dark"] .brand { text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
 .brand span { color: var(--accent); }
 
 .lookup { display: flex; gap: 0.4rem; align-items: center; position: relative; }
@@ -543,6 +564,21 @@ a.cta:hover { filter: brightness(1.08); }
   }
 }
 
+:root[data-theme="dark"] {
+  --map-paper:   #171b12;
+  --map-wood:    #1f2c1c;
+  --map-water:   #1b3540;
+  --map-water-e: #2a4a56;
+  --map-bldg:    #3a3226;
+  --map-trail:   #4e4331;
+  --map-road:    #34352b;
+  --map-road-e:  #4b4736;
+  --map-pad:     #3d3524;
+  --map-pad-e:   #8a7345;
+  --map-ink:     #e4dcc6;
+  --map-ink2:    #9c9479;
+}
+
 /* ---------- loop card thumbnail ---------- */
 
 .loop-card { padding: 0; overflow: hidden; gap: 0; }
@@ -587,9 +623,13 @@ a.cta:hover { filter: brightness(1.08); }
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .18),
               inset 0 -2px 0 rgba(0, 0, 0, .10);
 }
-:root:not([data-theme="light"]) .marker {
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .05),
-              inset 0 -2px 0 rgba(0, 0, 0, .35);
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .marker {
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.05), inset 0 -2px 0 rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"] .marker {
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.05), inset 0 -2px 0 rgba(0,0,0,.35);
 }
 
 .marker-label {
@@ -610,7 +650,10 @@ a.cta:hover { filter: brightness(1.08); }
   font-variant-numeric: tabular-nums;
   text-shadow: 0 1px 0 rgba(255, 255, 255, .3);
 }
-:root:not([data-theme="light"]) .marker-num { text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .marker-num { text-shadow: 0 1px 0 rgba(0,0,0,.5); }
+}
+:root[data-theme="dark"] .marker-num { text-shadow: 0 1px 0 rgba(0,0,0,.5); }
 
 .chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; max-width: none; }
 
@@ -669,9 +712,10 @@ figure.aerial img {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16);
   padding: .5rem .65rem;
 }
-:root:not([data-theme="light"]) .site-chip {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .site-chip { box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
 }
+:root[data-theme="dark"] .site-chip { box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
 .site-chip[data-measured="true"] { border-left-color: var(--measured); }
 .site-chip[data-seeded="true"] { border-left-color: var(--absent); }
 .site-chip b { font-family: var(--display); font-weight: 700; font-size: 1rem; }
@@ -749,6 +793,8 @@ figure.aerial-loop figcaption { max-width: none; }
   :root:not([data-theme="light"]) .pine,
   :root:not([data-theme="light"]) .pine-floor { fill: #1c2a1a; }
 }
+:root[data-theme="dark"] .pine,
+:root[data-theme="dark"] .pine-floor { fill: #1c2a1a; }
 
 /* ---------- about Fort Wilderness ---------- */
 
@@ -913,3 +959,21 @@ figure.aerial-loop figcaption { max-width: none; }
 footer nav { display: flex; flex-wrap: wrap; gap: .9rem; margin-bottom: .75rem; }
 footer nav a { color: var(--muted); }
 footer nav a:hover { color: var(--accent); }
+
+/* ---------- appearance toggle ---------- */
+
+.themetoggle {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--ground);
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  padding: .4rem .6rem;
+  cursor: pointer;
+  min-width: 4.6rem;
+}
+.themetoggle:hover { color: var(--accent); border-color: var(--accent); }
+.themetoggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

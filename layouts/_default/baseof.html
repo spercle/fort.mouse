@@ -8,6 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+  <script>
+    // Set before first paint, or the page flashes the system theme first.
+    try {
+      var t = localStorage.getItem("fm-theme");
+      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
   <link rel="stylesheet" href="{{ "css/site.css" | relURL }}">
 
   {{/* SVG first for browsers that take it; PNGs for those that don't, and for iOS,
@@ -28,6 +35,11 @@
 
       {{/* The only link used to be the logo — every index page was reachable
            by typing a URL and nothing else. */}}
+      <button class="themetoggle" id="themetoggle" type="button"
+              title="Appearance: follow this device, light, or dark">
+        <span id="themelabel">Auto</span>
+      </button>
+
       <nav class="sitenav">
         <a href="{{ "loop/" | relURL }}"
            {{ if eq .Section "loop" }}aria-current="page"{{ end }}>Loops</a>
@@ -64,6 +76,29 @@
 
   <script>
     // GitHub Pages serves this from a subpath, so the script cannot assume "/".
+    // Appearance: Auto follows the device; Light and Dark override it, so the site
+    // looks the same on a phone in light mode as on a desktop in dark mode.
+    (function () {
+      var order = ["auto", "light", "dark"];
+      var btn = document.getElementById("themetoggle");
+      var label = document.getElementById("themelabel");
+      function read() {
+        try { return localStorage.getItem("fm-theme") || "auto"; } catch (e) { return "auto"; }
+      }
+      function apply(mode) {
+        if (mode === "auto") delete document.documentElement.dataset.theme;
+        else document.documentElement.dataset.theme = mode;
+        label.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+        btn.setAttribute("aria-label", "Appearance: " + mode + ". Click to change.");
+      }
+      apply(read());
+      btn.addEventListener("click", function () {
+        var next = order[(order.indexOf(read()) + 1) % order.length];
+        try { localStorage.setItem("fm-theme", next); } catch (e) {}
+        apply(next);
+      });
+    })();
+
     const SEARCH_INDEX = "{{ "search-index.json" | relURL }}";
     const SITE_BASE = "{{ "site/" | relURL }}";
     // 846 records is nothing, so the lookup runs entirely in the browser.
