@@ -31,6 +31,15 @@ AERIAL = os.path.join(ROOT, "static", "aerial")
 ABSENT = {"unmeasured", "occluded", "unknown"}
 
 PHOTOS = os.path.join(ROOT, "data", "photos.yaml")
+VERIFIED = os.path.join(ROOT, "data", "verified.yaml")
+
+
+def load_verified():
+    """Per-site confirmations from primary evidence. Beats the loop-level default."""
+    if not os.path.exists(VERIFIED):
+        return {}
+    data = yaml.safe_load(open(VERIFIED)) or {}
+    return {v["site_number"]: v for v in data.get("sites") or []}
 
 
 def load_photos():
@@ -92,6 +101,7 @@ def main():
         sys.exit(1)
 
     photos = load_photos()
+    verified = load_verified()
     os.makedirs(OUT, exist_ok=True)
     index = []
     totals = {"sites": 0, "own": 0, "seeded": 0}
@@ -143,7 +153,9 @@ def main():
             out_sites.append({
                 "site_number": n,
                 "fields": fields,
-                "number_confidence": site.get("number_confidence", "unverified"),
+                "number_confidence": (verified[n]["confidence"] if n in verified
+                                      else site.get("number_confidence", "unverified")),
+                "verified": verified.get(n),
                 "imagery_vintage": site.get("imagery_vintage"),
                 "notes": site.get("notes"),
                 "photos": photos.get(n) or [],

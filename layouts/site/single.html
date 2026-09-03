@@ -130,6 +130,15 @@
       <span class="mono">verified</span> when someone reads it off the loop sign or
       photographs the post.</p>
     </div>
+  {{ else if $s.verified }}
+    <div class="callout is-verified" style="margin-top:1rem">
+      <p><b>This site number is verified.</b> {{ $s.verified.note }}
+      {{ if eq $s.verified.kind "post" }}
+        A photograph of the numbered post is the strongest evidence there is —
+        everything else in this project's numbering is inferred from sequence.
+      {{ end }}
+      {{ with $s.verified.date }}Evidence captured {{ . }}.{{ end }}</p>
+    </div>
   {{ else if $loop.sign_evidence }}
     <div class="callout is-verified" style="margin-top:1rem">
       <p><b>This site number is verified.</b> Loop {{ $loop.loop }}'s entrance sign

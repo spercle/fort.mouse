@@ -1,0 +1,17 @@
+# Sites whose number has been confirmed from primary evidence — a photograph of the
+# numbered post, or a loop entrance sign. HUMAN-OWNED: derive.py never writes here,
+# so re-measuring a loop cannot silently undo a verification.
+#
+# Add entries with:
+#   python3 pipeline/verify_site.py 1420 --photo /photos/1420-2.jpg --note "..."
+
+sites:
+  - site_number: 1420
+    confidence: verified
+    evidence: /photos/1420-2.jpg
+    kind: post
+    note: >-
+      The numbered post is legible in the photograph, reading 1420, alongside the
+      utility pedestal marked T7365.
+    verified_by: own photograph
+    date: 2025-11-16

@@ -209,6 +209,20 @@ build time:
 python3 pipeline/loop_maps.py
 ```
 
+### Verify a single site number
+
+A photograph of the numbered post is primary evidence — everything else in this
+project's numbering is inferred from sequence. Once the photo is filed:
+
+```bash
+python3 pipeline/verify_site.py 1420 --photo /photos/1420-2.jpg \
+  --note "The numbered post is legible, reading 1420."
+```
+
+That writes `data/verified.yaml`, which is **human-owned** — `derive.py` never touches
+it, so re-measuring a loop cannot silently undo a verification. The site page swaps its
+"hypothesis" warning for a green verified chip and cites the evidence.
+
 ### Record a site range read off a real sign
 
 A loop's entrance sign states its site-number range, which makes it a **primary source**
@@ -292,6 +306,7 @@ digitizing mistake, not a discovery, and the build stops.
 | `icons.py` | Rasterise the favicon and mobile icons from scratch — no image library needed |
 | `ingest_photos.py [--apply]` | File photos from `incoming/` against sites, by filename or GPS |
 | `test_exif.py` | Prove the hand-rolled EXIF reader against a synthesised photo |
+| `verify_site.py <site> --photo … --note …` | Record a site number confirmed from primary evidence |
 | `loop_signs.py` | Draw each loop's entrance sign, with its site-number range |
 | `loop_basemap.py <loop>` | Cut an aerial that lines up exactly with that loop's map frame |
 
