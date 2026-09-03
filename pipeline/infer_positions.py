@@ -36,14 +36,14 @@ def road(loop):
     return [c for f in fc["features"] for c in f["geometry"]["coordinates"]]
 
 
-def main():
-    loop = int(sys.argv[1])
+def one(loop):
     path = os.path.join(ROOT, "data", "loops", f"{loop}.yaml")
     data = yaml.safe_load(open(path))
     pts = road(loop)
     sites = data.get("sites") or []
     if len(pts) < 2 or not sites:
-        sys.exit(f"loop {loop}: need road geometry and a site roster")
+        print(f"  loop {loop}: SKIPPED — no road geometry or no roster")
+        return
 
     # cumulative length along the centreline, in degrees-space but weighted properly
     lat0 = pts[0][1]
@@ -78,8 +78,20 @@ def main():
     data["positions_inferred"] = True
     with open(path, "w") as fh:
         yaml.safe_dump(data, fh, sort_keys=False, allow_unicode=True, width=100)
-    print(f"  loop {loop}: {n} provisional positions along {int(total/off_deg*OFFSET_FT)} ft of road")
-    print("  These are a scaffold. Digitizing replaces them and writes real centroids.")
+    print(f"  loop {loop}: {n} provisional positions along "
+          f"{int(total/off_deg*OFFSET_FT)} ft of road")
+
+
+def main():
+    if len(sys.argv) > 1:
+        loops = [int(a) for a in sys.argv[1:]]
+    else:
+        d = os.path.join(ROOT, "data", "loops")
+        loops = sorted(int(f[:-5]) for f in os.listdir(d) if f.endswith(".yaml"))
+    for loop in loops:
+        one(loop)
+    print("\nThese are a scaffold — spacing arithmetic, not observation.")
+    print("Digitizing replaces them and writes real centroids.")
 
 
 if __name__ == "__main__":
