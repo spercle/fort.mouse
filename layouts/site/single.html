@@ -10,9 +10,22 @@
 {{ end }}
 
 <div class="site-head">
-  <p class="eyebrow"><a href="/loop/{{ $loop.loop }}/">Loop {{ $loop.loop }}</a> · {{ $loop.loop_name }}</p>
-  <h1>Site {{ $s.site_number }}</h1>
-  <p class="site-sub">{{ $loop.category }} · sewer {{ if $b.sewer }}yes{{ else }}no{{ end }} · up to {{ $b.max_occupancy }} guests</p>
+  <p class="eyebrow trail">
+    <a href="/loop/{{ $loop.loop }}/">Loop {{ $loop.loop }}</a> · {{ $loop.loop_name }}
+  </p>
+
+  {{/* The post at the head of the site, which is what a guest actually looks for. */}}
+  <h1 class="marker">
+    <span class="marker-label">Site</span>
+    <span class="marker-num">{{ $s.site_number }}</span>
+  </h1>
+
+  <p class="chips">
+    <span class="chip chip-cat">{{ $loop.category }}</span>
+    <span class="chip">{{ if $b.sewer }}Sewer{{ else }}No sewer{{ end }}</span>
+    <span class="chip">Sleeps {{ $b.max_occupancy }}</span>
+    {{ if eq $s.number_confidence "hypothesis" }}<span class="chip chip-warn">Number unverified</span>{{ end }}
+  </p>
 </div>
 
 {{ with $s.seeded_credit }}
@@ -70,7 +83,16 @@
     <table>
       <thead><tr><th>Field</th><th>Value</th><th>Source</th></tr></thead>
       <tbody>
-        {{ range $k, $label := (dict "pad_length_ft" "Pad length" "pad_width_ft" "Pad width" "pad_orientation_deg" "Orientation" "pad_surface" "Surface" "backs_onto" "Backs onto" "approach_side" "Back-in side") }}
+        {{/* A slice, not a dict — Go ranges maps in sorted key order, which threw
+              away the reading order and put Back-in side above Pad length. */}}
+        {{ range slice
+            (slice "pad_length_ft" "Pad length")
+            (slice "pad_width_ft" "Pad width")
+            (slice "pad_orientation_deg" "Orientation")
+            (slice "pad_surface" "Surface")
+            (slice "backs_onto" "Backs onto")
+            (slice "approach_side" "Back-in side") }}
+          {{ $k := index . 0 }}{{ $label := index . 1 }}
           {{ $f := index $s.fields $k }}
           <tr>
             <td>{{ $label }}</td>
