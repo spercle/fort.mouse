@@ -30,6 +30,19 @@ AERIAL = os.path.join(ROOT, "static", "aerial")
 
 ABSENT = {"unmeasured", "occluded", "unknown"}
 
+PHOTOS = os.path.join(ROOT, "data", "photos.yaml")
+
+
+def load_photos():
+    """Guest and own photographs, filed by pipeline/ingest_photos.py."""
+    if not os.path.exists(PHOTOS):
+        return {}
+    data = yaml.safe_load(open(PHOTOS)) or {}
+    out = {}
+    for ph in data.get("photos") or []:
+        out.setdefault(ph["site"], []).append(ph)
+    return out
+
 MEASURES = ["pad_length_ft", "pad_width_ft", "pad_orientation_deg",
             "road_offset_ft", "pad_surface", "backs_onto", "approach_side"]
 
@@ -78,6 +91,7 @@ def main():
         print("VALIDATION FAILED — nothing written\n" + str(exc), file=sys.stderr)
         sys.exit(1)
 
+    photos = load_photos()
     os.makedirs(OUT, exist_ok=True)
     index = []
     totals = {"sites": 0, "own": 0, "seeded": 0}
@@ -132,6 +146,7 @@ def main():
                 "number_confidence": site.get("number_confidence", "unverified"),
                 "imagery_vintage": site.get("imagery_vintage"),
                 "notes": site.get("notes"),
+                "photos": photos.get(n) or [],
                 "aerial": aerial if (aerial and os.path.exists(
                     os.path.join(AERIAL, f"{n}.jpg"))) else None,
                 "is_measured": length["state"] == "measured",

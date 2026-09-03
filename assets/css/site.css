@@ -1004,3 +1004,28 @@ footer nav a:hover { color: var(--accent); }
 .mapswitch button + button { border-left: 1px solid var(--rule-strong); }
 .mapswitch button[aria-pressed="true"] { background: var(--bark); color: #f1ece0; }
 .mapswitch button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* ---------- site photographs ---------- */
+
+.photogrid {
+  display: grid;
+  gap: .75rem;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  margin: 1rem 0;
+}
+.photo { margin: 0; }
+.photo img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 3px solid var(--bark);
+  border-radius: 3px;
+  background: var(--surface-sunk);
+}
+.photo figcaption {
+  font-family: var(--mono);
+  font-size: .66rem;
+  color: var(--muted);
+  margin-top: .4rem;
+  line-height: 1.6;
+}

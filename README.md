@@ -122,6 +122,25 @@ python3 pipeline/derive.py 1200 work/loop-1200-pads.geojson
 `derive.py` refuses to overwrite a loop with an empty roster, so a bad export can't wipe
 your work.
 
+### Add photographs
+
+Drop them in `incoming/` with any filename, then:
+
+```bash
+python3 pipeline/ingest_photos.py            # dry run, says what it would do
+python3 pipeline/ingest_photos.py --apply    # moves and records them
+```
+
+Each is matched to a site by, in order of confidence: a **site number in the filename**,
+then **GPS in the photo's EXIF** matched to the nearest known site within 160 ft, then
+nothing — reported and left alone rather than guessed at.
+
+A GPS-tagged photo taken standing on a site is a position fix, which is the one thing
+aerial imagery cannot give us; the distance to the mapped position is recorded so it can
+be judged. EXIF is parsed by hand (no image dependencies) and proven by
+`pipeline/test_exif.py`, which builds a JPEG with known coordinates and checks they come
+back within a few feet.
+
 ### Add a note about a site
 
 Notes are yours and the pipeline never touches them. Create `data/sites/1204.md`:
@@ -271,6 +290,8 @@ digitizing mistake, not a discovery, and the build stops.
 | `test_geom.py` | Prove the oriented-bounding-box maths against known pads |
 | `demo.py` | Synthetic measurements for previewing the layout. Stamps `status: demo` |
 | `icons.py` | Rasterise the favicon and mobile icons from scratch — no image library needed |
+| `ingest_photos.py [--apply]` | File photos from `incoming/` against sites, by filename or GPS |
+| `test_exif.py` | Prove the hand-rolled EXIF reader against a synthesised photo |
 | `loop_signs.py` | Draw each loop's entrance sign, with its site-number range |
 | `loop_basemap.py <loop>` | Cut an aerial that lines up exactly with that loop's map frame |
 

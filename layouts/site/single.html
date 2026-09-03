@@ -142,6 +142,30 @@
 
 {{ with $s.notes }}<section><h2>Notes</h2><p>{{ . }}</p></section>{{ end }}
 
+{{ with $s.photos }}
+<section>
+  <h2>Photographs</h2>
+  <div class="photogrid">
+    {{ range . }}
+      <figure class="photo">
+        <img src="{{ strings.TrimPrefix "/" .file | relURL }}" loading="lazy"
+             alt="Site {{ $s.site_number }}">
+        <figcaption>
+          {{ with .taken }}Taken {{ . }}{{ else }}Date unknown{{ end }}
+          {{ if eq .matched_by "gps" }}
+            · located by GPS{{ with .gps_distance_ft }}, {{ . }} ft from the mapped position{{ end }}
+          {{ end }}
+        </figcaption>
+      </figure>
+    {{ end }}
+  </div>
+  <p class="fallback">
+    First-party photographs. A guest sending a photo grants permission to publish it
+    here with credit — see <a href="{{ "credits/" | relURL }}">credits</a>.
+  </p>
+</section>
+{{ end }}
+
 {{/* Walking the loop in order is how people actually browse a campground. */}}
 {{ $prev := 0 }}{{ $next := 0 }}
 {{ range $i, $x := $loop.sites }}

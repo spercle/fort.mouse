@@ -5,6 +5,11 @@ public/
 resources/
 .hugo_build.lock
 
+# Photo staging. Files here are raw drops; ingest_photos.py files them into
+# static/photos/ where they ARE committed. The README is kept.
+incoming/*
+!incoming/README.md
+
 # Digitizing scratch: exported GeoJSON, QGIS projects
 work/
 *.qgz
