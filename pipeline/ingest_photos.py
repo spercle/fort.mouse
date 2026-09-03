@@ -41,6 +41,11 @@ EXTS = {".jpg", ".jpeg", ".png", ".heic"}
 SKIP_EXTS = {".mov", ".mp4", ".aae"}
 # NAS and OS droppings that are not photographs.
 SKIP_NAMES = {"@eadir", ".ds_store", "thumbs.db", ".spotlight-v100"}
+
+# Where filed originals are kept. It sits inside incoming/, so it MUST be excluded from
+# the walk — scanning it offers every already-published photo for filing all over
+# again, and --apply would duplicate the lot.
+FILED = "_filed"
 MAX_EDGE = 2000          # published long edge; phones now shoot 5712 px
 JPEG_QUALITY = 78
 MAX_MATCH_FT = 160.0     # beyond this a GPS fix is not confidently "that site"
@@ -228,7 +233,7 @@ def collect(root):
     found = []
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d.lower() not in SKIP_NAMES
-                       and not d.startswith(".")]
+                       and d != FILED and not d.startswith(".")]
         hint = os.path.basename(dirpath)
         hint = int(hint) if hint.isdigit() else None
         for fn in sorted(filenames):
@@ -239,6 +244,37 @@ def collect(root):
                 continue
             found.append((os.path.join(dirpath, fn), fn, hint))
     return found
+
+
+def leftovers(root):
+    """Files we deliberately never publish — Live Photo movies, NAS sidecars — still
+    sitting in incoming/. Reported so the folder can be seen to be finished."""
+    out = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        # Same exclusions as the main scan: a NAS sidecar folder is not the guest's
+        # footage, and walking into it lists transcodes nobody put there.
+        dirnames[:] = [d for d in dirnames if d.lower() not in SKIP_NAMES
+                       and d != FILED and not d.startswith(".")]
+        for fn in filenames:
+            if fn.startswith(".") or fn.lower() in SKIP_NAMES:
+                continue
+            if os.path.splitext(fn)[1].lower() in SKIP_EXTS:
+                out.append(os.path.join(dirpath, fn))
+    return out
+
+
+def tidy(paths):
+    """Move ignored files into _filed/, mirroring their path. Nothing is deleted —
+    a Live Photo movie is still the guest's footage even if no page shows it."""
+    moved = 0
+    for src in paths:
+        dest = os.path.join(INCOMING, FILED, os.path.relpath(src, INCOMING))
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        if os.path.exists(dest):
+            continue
+        shutil.move(src, dest)
+        moved += 1
+    return moved
 
 
 def convert(src, dest):
@@ -300,7 +336,20 @@ def main():
     os.makedirs(INCOMING, exist_ok=True)
     found = collect(INCOMING)
     if not found:
-        print("  nothing in incoming/ — drop photos there and run this again")
+        # Not necessarily empty — it may hold only things we never publish.
+        extra = leftovers(INCOMING)
+        if extra:
+            print(f"  no new photographs. {len(extra)} Live Photo movie(s) are all "
+                  f"that is left:")
+            for f in extra[:8]:
+                print(f"    {os.path.relpath(f, INCOMING)}")
+            if args.apply:
+                n = tidy(extra)
+                print(f"\n  {n} moved aside to incoming/{FILED}/ — kept, not deleted")
+            else:
+                print(f"\n  re-run with --apply to move them into incoming/{FILED}/")
+        else:
+            print("  nothing in incoming/ — drop photos there and run this again")
         return
 
     sites = known_sites()
@@ -352,14 +401,10 @@ def main():
             why = "no site number, no GPS" if not exif["gps"] else "GPS not near a site"
             print(f"  {fn:<30} -> LEFT ALONE  ({why})")
 
-    skipped = 0
-    for dirpath, dirnames, filenames in os.walk(INCOMING):
-        dirnames[:] = [d for d in dirnames if d.lower() not in SKIP_NAMES
-                       and not d.startswith(".")]
-        skipped += sum(1 for f in filenames
-                       if os.path.splitext(f)[1].lower() in SKIP_EXTS)
-    if skipped:
-        print(f"\n  {skipped} Live Photo movie(s) ignored — the still is what a page needs")
+    extra = leftovers(INCOMING)
+    if extra:
+        print(f"\n  {len(extra)} Live Photo movie(s) ignored — the still is what a "
+              f"page needs")
 
     if not args.apply:
         print(f"\n  dry run. {len(planned)} would be filed, {len(unmatched)} left alone.")
@@ -377,7 +422,7 @@ def main():
         # The source is moved aside, never deleted. A conversion can go wrong in
         # ways that are not obvious until the page is looked at, and the original
         # is the only thing that makes that recoverable.
-        keep = os.path.join(INCOMING, "_filed",
+        keep = os.path.join(INCOMING, FILED,
                             os.path.relpath(p["src"], INCOMING))
         os.makedirs(os.path.dirname(keep), exist_ok=True)
         shutil.move(p["src"], keep)
@@ -395,6 +440,10 @@ def main():
     manifest["photos"].sort(key=lambda x: (x["site"], x["file"]))
     with open(MANIFEST, "w") as fh:
         yaml.safe_dump(manifest, fh, sort_keys=False, allow_unicode=True)
+    if extra:
+        n = tidy(extra)
+        if n:
+            print(f"  {n} ignored file(s) moved aside to incoming/{FILED}/")
     print(f"\n  moved {len(planned)}, recorded in data/photos.yaml")
     print("  run ./build.sh to see them on the site")
 
