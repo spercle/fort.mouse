@@ -7,7 +7,7 @@
 loop: 1800
 loop_name: Conestoga Trail
 category: Full Hook-Up
-generated: 2026-09-02
+generated: 2026-09-03
 status: unmeasured
 
 # Disney's published Category maximum. NOT a measurement of any Site.
@@ -23,7 +23,7 @@ category_baseline:
 county_record:
   source: county-record
   service: ocgis4.ocfl.net/arcgis/rest/services/AGOL_Open_Data/MapServer/1
-  retrieved: 2026-09-02
+  retrieved: 2026-09-03
   segments:
     - theoretical_left: [1852, 1898]
       theoretical_right: [1853, 1899]
@@ -52,6 +52,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403425, -81.553935]
   - site_number: 1802
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -59,6 +60,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403295, -81.553627]
   - site_number: 1803
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -66,6 +68,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403563, -81.553781]
   - site_number: 1804
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -73,6 +76,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403424, -81.553479]
   - site_number: 1805
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -80,6 +84,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403697, -81.55358]
   - site_number: 1806
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -87,6 +92,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.40349, -81.553334]
   - site_number: 1807
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -94,6 +100,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403786, -81.553386]
   - site_number: 1808
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -101,6 +108,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403621, -81.55312]
   - site_number: 1809
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -108,6 +116,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403815, -81.553342]
   - site_number: 1810
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -115,6 +124,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403905, -81.553009]
   - site_number: 1811
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -122,6 +132,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403967, -81.553342]
   - site_number: 1812
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -129,6 +140,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.404147, -81.553088]
   - site_number: 1813
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -136,6 +148,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.404002, -81.553361]
   - site_number: 1814
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -143,6 +156,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.4043, -81.55332]
   - site_number: 1815
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -150,6 +164,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.404037, -81.553505]
   - site_number: 1816
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -157,6 +172,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.404303, -81.553631]
   - site_number: 1817
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -164,6 +180,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.404013, -81.553568]
   - site_number: 1818
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -171,6 +188,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.404187, -81.553845]
   - site_number: 1819
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -178,6 +196,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403892, -81.553857]
   - site_number: 1820
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -185,6 +204,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.404166, -81.554005]
   - site_number: 1821
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -192,6 +212,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403868, -81.554045]
   - site_number: 1822
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -199,6 +220,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.404115, -81.554229]
   - site_number: 1823
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -206,6 +228,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403823, -81.55418]
   - site_number: 1824
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -213,6 +236,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403916, -81.554495]
   - site_number: 1825
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -220,6 +244,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403795, -81.5542]
   - site_number: 1826
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -227,6 +252,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403641, -81.554501]
   - site_number: 1827
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -234,6 +260,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403698, -81.554185]
   - site_number: 1828
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -241,6 +268,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403443, -81.554366]
   - site_number: 1829
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -248,6 +276,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403587, -81.554062]
   - site_number: 1830
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -255,6 +284,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403296, -81.554156]
   - site_number: 1831
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -262,6 +292,7 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403491, -81.553893]
   - site_number: 1832
     pad_length_ft: unmeasured
     pad_width_ft: unmeasured
@@ -269,3 +300,4 @@ sites:
     backs_onto: unknown
     number_confidence: hypothesis
     source: none
+    inferred_centroid: [28.403203, -81.553988]

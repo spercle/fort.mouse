@@ -184,6 +184,17 @@ def main():
             skipped += 1
             continue
 
+        # --force rewrites the roster from public records, which would otherwise
+        # throw away the provisional map positions and leave every map blank with
+        # no indication why. Carry them across by site number.
+        carried = {}
+        if os.path.exists(dest):
+            import yaml as _yaml
+            prev = _yaml.safe_load(open(dest)) or {}
+            for old in prev.get("sites") or []:
+                if old.get("inferred_centroid"):
+                    carried[old["site_number"]] = old["inferred_centroid"]
+
         streets = [street] + EXTRA_STREETS.get(loop, [])
 
         # The street name identifies the loop. Do NOT filter on the county's block
@@ -307,6 +318,9 @@ def main():
             w("    backs_onto: unknown")
             w(f"    number_confidence: {confidence}")
             w("    source: none")
+            keep = carried.get(first + i)
+            if keep:
+                w(f"    inferred_centroid: [{keep[0]}, {keep[1]}]")
         if loop == 1200:
             w("")
             w("open_questions:")

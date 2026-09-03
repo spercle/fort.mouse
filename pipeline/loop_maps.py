@@ -325,6 +325,15 @@ def draw(loop_no, name, category, road_coords, segments):
     svg.append(f'<text class="lbl" x="{nx-4}" y="{ny+18}">N</text>')
 
     prov = sum(1 for p in pads if p["state"] == "provisional")
+
+    # An empty loop must not look like a finished one. The campground-style rewrite
+    # lost this and twenty maps silently rendered with no sites and no explanation.
+    if not pads:
+        svg.append(f'<text class="mark" x="{W/2}" y="{H/2 - 4}">'
+                   f'NO SITE POSITIONS YET</text>')
+        svg.append(f'<text class="key" x="{W/2}" y="{H/2 + 14}" text-anchor="middle">'
+                   f'run pipeline/infer_positions.py {loop_no}</text>')
+
     note = f"{prov} site positions provisional · " if prov else ""
     svg.append(f'<text class="lbl" x="{W/2}" y="{H-16}" text-anchor="middle">'
                f'{note}Geometry: OpenStreetMap · Blocks: Orange County public record</text>')
