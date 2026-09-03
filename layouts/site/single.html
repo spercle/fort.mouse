@@ -36,8 +36,7 @@
   <div class="callout is-verified">
     <p><b>Measured on the ground.</b> These figures were taken at the site with a tape
     measure{{ with .date }} on {{ . }}{{ end }} — not scaled off a photograph and not
-    copied from anyone else. It is the strongest kind of measurement this project has.
-    {{ with .note }}{{ . }}{{ end }}</p>
+    copied from anyone else. It is the strongest kind of measurement this project has.</p>
   </div>
 {{ end }}
 
@@ -94,7 +93,7 @@
 {{ end }}
 
 {{ $pad := index $s.fields "pad_length_ft" }}
-{{ if and (eq $len.state "measured") (eq $pad.state "measured") }}
+{{ if and (and (eq $len.state "measured") (eq $pad.state "measured")) (not $s.notes) }}
   {{ if lt $pad.value $len.value }}
   <p class="fallback">
     The poured concrete is {{ $pad.display }} of the {{ $len.display }} site. The rest
@@ -175,7 +174,9 @@
   {{ end }}
 </section>
 
-{{ with $s.notes }}<section><h2>Notes</h2><p>{{ . }}</p></section>{{ end }}
+{{/* The body of data/sites/<n>.md, written by hand. Markdown, so a note can carry
+      a list or a link without fighting the template. */}}
+{{ with $s.notes }}<section class="site-notes"><h2>Notes</h2>{{ . | markdownify }}</section>{{ end }}
 
 {{ with $s.photos }}
 <section>

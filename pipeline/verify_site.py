@@ -3,8 +3,9 @@
     python3 pipeline/verify_site.py 1420 --photo /photos/1420-2.jpg \
         --note "The numbered post is legible, reading 1420."
 
-Writes to data/verified.yaml, which is HUMAN-OWNED — derive.py never touches it, so
-re-measuring a loop cannot silently undo a verification.
+Writes to data/sites/<number>.md, which is HUMAN-OWNED — derive.py never touches it,
+so re-measuring a loop cannot silently undo a verification. Editing that file by hand
+does the same thing.
 
 A photograph of the numbered post, or of the loop's entrance sign, is a primary
 source. Everything else in this project's numbering is inference from sequence.
@@ -17,8 +18,11 @@ from datetime import date
 
 import yaml
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PATH = os.path.join(ROOT, "data", "verified.yaml")
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import site_files  # noqa: E402
+
+ROOT = os.path.dirname(HERE)
 LOOPS = os.path.join(ROOT, "data", "loops")
 
 
@@ -46,23 +50,18 @@ def main():
     if not os.path.exists(os.path.join(ROOT, "static", args.photo.lstrip("/"))):
         sys.exit(f"no such photo: static{args.photo}")
 
-    data = yaml.safe_load(open(PATH)) if os.path.exists(PATH) else None
-    data = data or {"sites": []}
-    data["sites"] = [s for s in data["sites"] if s["site_number"] != args.site]
-    data["sites"].append({
-        "site_number": args.site,
-        "confidence": "verified",
+    # Preserve everything else in the file — measurements and prose alike.
+    front, body = site_files.read_one(args.site)
+    front["verified"] = {
         "evidence": args.photo,
         "kind": args.kind,
         "note": args.note,
-        "verified_by": "own photograph",
+        "by": "own photograph",
         "date": args.date or date.today().isoformat(),
-    })
-    data["sites"].sort(key=lambda s: s["site_number"])
-    with open(PATH, "w") as fh:
-        yaml.safe_dump(data, fh, sort_keys=False, allow_unicode=True, width=88)
-    print(f"  site {args.site} recorded as verified, citing {args.photo}")
-    print(f"  {len(data['sites'])} site(s) verified from primary evidence")
+    }
+    path = site_files.write(args.site, front, body)
+    print(f"  site {args.site} verified, citing {args.photo}")
+    print(f"  -> {os.path.relpath(path, ROOT)}")
 
 
 if __name__ == "__main__":

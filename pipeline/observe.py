@@ -8,9 +8,10 @@ Site and pad are separate measurements (ADR-0005). The site is the usable length
 has to fit into; the pad is the poured concrete inside it. Site 101 is 45 ft of site
 over a 24 ft slab, so recording one as the other would be wrong by 21 feet.
 
-Writes data/observed.yaml, which is HUMAN-OWNED — derive.py never touches it, so
-re-running the aerial measurements cannot overwrite something someone stood on the
-pad with a tape measure to find out.
+Writes data/sites/<number>.md, which is HUMAN-OWNED — derive.py never touches it, so
+re-running the aerial measurements cannot overwrite something someone stood on the pad
+with a tape measure to find out. Editing that file by hand does exactly the same thing;
+this script is a shortcut, not the interface.
 
 Observed beats aerial beats seeded. Someone on the ground outranks a photograph
 from 3,000 feet, which outranks a figure published by somebody else.
@@ -21,8 +22,11 @@ import os
 import sys
 import yaml
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PATH = os.path.join(ROOT, "data", "observed.yaml")
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import site_files  # noqa: E402
+
+ROOT = os.path.dirname(HERE)
 LOOPS = os.path.join(ROOT, "data", "loops")
 
 # Disney's published maximum per category, for sanity-checking against.
@@ -63,29 +67,29 @@ def main():
     if loop is None:
         sys.exit(f"site {args.site} is not in any loop roster")
 
-    entry = {"site_number": args.site, "source": "observed"}
+    # Keep whatever is already there — the prose underneath especially.
+    entry, body = site_files.read_one(args.site)
+    entry["loop"] = loop["loop"]
     if args.date:
-        entry["date"] = args.date
+        entry["measured"] = args.date
+    before = dict(entry)
     for key, val in (("site_length_ft", args.site_length),
                      ("site_width_ft", args.site_width),
                      ("pad_length_ft", args.pad_length),
                      ("pad_width_ft", args.pad_width),
-                     ("backs_onto", args.backs_onto), ("pad_surface", args.surface),
-                     ("note", args.note)):
+                     ("backs_onto", args.backs_onto), ("pad_surface", args.surface)):
         if val is not None:
             entry[key] = val
-    if len(entry) == len({"site_number", "source"}) + bool(args.date):
+    if entry == before and not args.note:
         sys.exit("nothing to record — pass at least one measurement")
+    if args.note:
+        body = (body + "\n\n" + args.note).strip() if body else args.note
 
-    data = yaml.safe_load(open(PATH)) if os.path.exists(PATH) else None
-    data = data or {"sites": []}
-    data["sites"] = [s for s in data["sites"] if s["site_number"] != args.site]
-    data["sites"].append(entry)
-    data["sites"].sort(key=lambda s: s["site_number"])
-    with open(PATH, "w") as fh:
-        yaml.safe_dump(data, fh, sort_keys=False, allow_unicode=True, width=88)
 
-    print(f"  site {args.site} ({loop['category']}) recorded from observation")
+    path = site_files.write(args.site, entry, body)
+
+    print(f"  site {args.site} ({loop['category']}) -> "
+          f"{os.path.relpath(path, ROOT)}")
     for k in ("site_length_ft", "site_width_ft", "pad_length_ft", "pad_width_ft",
               "backs_onto", "pad_surface"):
         if k in entry:
@@ -104,7 +108,7 @@ def main():
                   f"of site. {args.site_length} ft is well under that.")
             print("  The published figure is a ceiling for the category, not a promise")
             print("  about any one site — but it is worth a second look.")
-    print(f"\n  {len(data['sites'])} site(s) measured on the ground")
+    print("\n  edit that file directly for anything else worth saying")
 
 
 if __name__ == "__main__":

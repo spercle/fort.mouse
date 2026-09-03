@@ -5,7 +5,7 @@
 Reads:
     data/loops/*.yaml    machine-owned, written by derive.py
     data/seeds/*.yaml    human-owned attributed seeds (ADR-0004)
-    data/observed.yaml   human-owned measurements taken on the ground
+    data/sites/*.md      human-owned — one file per site, frontmatter plus notes
 Writes:
     data/resolved/*.yaml         one per loop, every field already resolved
     data/resolved/index.json     the client-side site-number lookup
@@ -22,6 +22,7 @@ import sys
 
 import yaml
 
+import site_files
 from validate import Invalid, validate_loop, validate_seed
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,24 +34,6 @@ AERIAL = os.path.join(ROOT, "static", "aerial")
 ABSENT = {"unmeasured", "occluded", "unknown"}
 
 PHOTOS = os.path.join(ROOT, "data", "photos.yaml")
-VERIFIED = os.path.join(ROOT, "data", "verified.yaml")
-OBSERVED = os.path.join(ROOT, "data", "observed.yaml")
-
-
-def load_observed():
-    """Measurements taken on the ground. Outranks everything else we have."""
-    if not os.path.exists(OBSERVED):
-        return {}
-    data = yaml.safe_load(open(OBSERVED)) or {}
-    return {o["site_number"]: o for o in data.get("sites") or []}
-
-
-def load_verified():
-    """Per-site confirmations from primary evidence. Beats the loop-level default."""
-    if not os.path.exists(VERIFIED):
-        return {}
-    data = yaml.safe_load(open(VERIFIED)) or {}
-    return {v["site_number"]: v for v in data.get("sites") or []}
 
 
 def load_photos():
@@ -63,9 +46,7 @@ def load_photos():
         out.setdefault(ph["site"], []).append(ph)
     return out
 
-# Site and pad are different measurements of different things — see ADR-0005. The
-# site is what a rig has to fit into and what Disney publishes; the pad is the poured
-# concrete inside it, which is routinely much shorter.
+
 MEASURES = ["site_length_ft", "site_width_ft",
             "pad_length_ft", "pad_width_ft", "pad_orientation_deg",
             "road_offset_ft", "pad_surface", "backs_onto", "approach_side"]
@@ -117,8 +98,12 @@ def main():
         sys.exit(1)
 
     photos = load_photos()
-    verified = load_verified()
-    observed = load_observed()
+    try:
+        roster = {s["site_number"]: lp for lp, d in loops.items() for s in d["sites"]}
+        site_notes = site_files.load_all(roster)
+    except site_files.SiteFileError as exc:
+        print("SITE FILES REJECTED — nothing written\n" + str(exc), file=sys.stderr)
+        sys.exit(1)
     os.makedirs(OUT, exist_ok=True)
     index = []
     totals = {"sites": 0, "own": 0, "seeded": 0, "observed": 0}
@@ -147,12 +132,16 @@ def main():
 
             # Highest precedence: someone was there. This overwrites a measured
             # aerial value, not just a gap — the tape measure is the better source.
-            obs = observed.get(n)
-            if obs:
+            sf = site_notes.get(n) or {}
+            if sf:
                 for key in MEASURES:
-                    if obs.get(key) is not None:
-                        fields[key] = {"state": "measured", "value": obs[key],
-                                       "source": "observed", "date": obs.get("date")}
+                    if sf.get(key) is not None:
+                        fields[key] = {"state": "measured", "value": sf[key],
+                                       "source": "observed",
+                                       "date": sf.get("measured")}
+            obs = ({"date": sf.get("measured")}
+                   if any(sf.get(k) is not None for k in MEASURES) else None)
+            ver = sf.get("verified")
 
             for key, unit in UNITS.items():
                 f = fields[key]
@@ -185,11 +174,11 @@ def main():
             out_sites.append({
                 "site_number": n,
                 "fields": fields,
-                "number_confidence": (verified[n]["confidence"] if n in verified
+                "number_confidence": ("verified" if ver
                                       else site.get("number_confidence", "unverified")),
-                "verified": verified.get(n),
+                "verified": ver,
                 "imagery_vintage": site.get("imagery_vintage"),
-                "notes": site.get("notes"),
+                "notes": sf.get("notes") or site.get("notes"),
                 "observed": obs,
                 "photos": photos.get(n) or [],
                 "aerial": aerial if (aerial and os.path.exists(

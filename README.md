@@ -135,25 +135,54 @@ python3 pipeline/derive.py 1200 work/loop-1200-pads.geojson
 `derive.py` refuses to overwrite a loop with an empty roster, so a bad export can't wipe
 your work.
 
-### Record something measured on the ground
+### Say something about a site
 
-A tape measure beats anything traced from a photograph, so an observation overrides
-the aerial value rather than merely filling a gap:
+Everything known about one site lives in **one file**: `data/sites/101.md`. Facts in
+the frontmatter, prose underneath.
 
-```bash
-python3 pipeline/observe.py 101 --site-length 45 \
-    --pad-length 24 --pad-width 10 --backs-onto "basketball goal"
+```markdown
+---
+site: 101
+loop: 100
+
+site_length_ft: 45
+pad_length_ft: 24          # poured concrete only
+pad_width_ft: 10
+backs_onto: basketball goal
+
+verified:                  # only with a photograph to cite
+  evidence: /photos/101-1.jpg
+  kind: post
+  note: The numbered post is legible, reading 101.
+---
+
+The concrete is short for the site — fine for a trailer, tight if you want
+the whole rig on slab.
 ```
 
-**Site and pad are different measurements** (ADR-0005). The site is the usable length
-a rig has to fit into, concrete and apron together — this is what Disney publishes and
-what belongs in `--site-length`. The pad is the poured concrete inside it, often far
-shorter: site 101 is 45 ft of site over a 24 ft slab. Aerial tracing produces site
-dimensions, because the slab and the apron are one surface at that resolution.
+Copy `data/sites/_TEMPLATE.md`, rename it to the site number, delete what you don't
+have. Every key is optional except `site`. A site with no file just shows what the
+aerial pass knows; delete a file and it reverts.
 
-These land in `data/observed.yaml`, which is human-owned — `derive.py` never touches
-it, so re-running the aerial pass cannot overwrite something you stood on the pad to
-find out.
+**Site and pad are different measurements** (ADR-0005). The site is the usable length
+a rig has to fit into, concrete and apron together — this is what Disney publishes.
+The pad is the poured concrete inside it, often far shorter: site 101 is 45 ft of site
+over a 24 ft slab. Aerial tracing produces site dimensions, because the slab and the
+apron are one surface at that resolution.
+
+These files are **human-owned**. `derive.py` never touches them, so re-running the
+aerial pass cannot overwrite something you stood on the pad to find out. Typos are
+caught at build time rather than silently ignored — an unknown key, a site that is not
+in any roster, a `verified:` block with no evidence, and a wrong `loop:` all stop the
+build and name the file.
+
+There are two shortcuts if you'd rather not open an editor. Both preserve everything
+already in the file, including the prose:
+
+```bash
+python3 pipeline/observe.py 101 --site-length 45 --pad-length 24 --pad-width 10
+python3 pipeline/verify_site.py 1420 --photo /photos/1420-2.jpg --note "Post legible."
+```
 
 ### Add photographs
 
@@ -252,9 +281,11 @@ python3 pipeline/verify_site.py 1420 --photo /photos/1420-2.jpg \
   --note "The numbered post is legible, reading 1420."
 ```
 
-That writes `data/verified.yaml`, which is **human-owned** — `derive.py` never touches
-it, so re-measuring a loop cannot silently undo a verification. The site page swaps its
-"hypothesis" warning for a green verified chip and cites the evidence.
+That adds a `verified:` block to `data/sites/1420.md`, keeping anything already in the
+file. Writing the block by hand is exactly equivalent. Either way it is **human-owned** —
+`derive.py` never touches it, so re-measuring a loop cannot silently undo a verification.
+The site page swaps its "hypothesis" warning for a green verified chip and cites the
+evidence.
 
 ### Record a site range read off a real sign
 

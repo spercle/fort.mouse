@@ -1102,3 +1102,15 @@ footer nav a:hover { color: var(--accent); }
   .lb-next { right: -.3rem; }
   .lightbox img { max-height: 74vh; }
 }
+
+/* Notes come from the body of data/sites/<n>.md. A single-line note renders without a
+   <p> wrapper — Hugo unwraps it — so the typography has to sit on the container. */
+.site-notes {
+  font-size: 1rem;
+  line-height: 1.65;
+  max-width: 62ch;
+}
+.site-notes > :first-child { margin-top: 0; }
+.site-notes > :last-child { margin-bottom: 0; }
+.site-notes ul, .site-notes ol { padding-left: 1.2rem; }
+.site-notes li { margin: 0.25rem 0; }

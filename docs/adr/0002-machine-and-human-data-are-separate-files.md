@@ -40,3 +40,16 @@ diffs are all touched by every recompute, versus 21 readable ones.
   "52 feet" it will go stale silently the next time the pad is remeasured.
 - `data/loops/*.yaml` is safe to delete and regenerate at any time. `data/sites/*.md` is
   not, and should be treated as the irreplaceable half of the repository.
+
+## Implementation
+
+`data/sites/<number>.md` — one file per site, YAML frontmatter for facts and a markdown
+body for prose. Added 2026-09-03, having been specified here and referenced by three
+generators for some time without existing. It absorbed the interim `data/observed.yaml`
+and `data/verified.yaml`, which had scattered facts about a single site across two
+shared list files plus a notes file that nothing read.
+
+`pipeline/site_files.py` is the only reader. Unknown keys, unknown sites, a `loop:` that
+contradicts the roster, and a `verified:` block with no evidence all fail the build
+rather than being ignored — a typo that silently did nothing would be worse than a
+crash, because you would believe a measurement had been recorded.
