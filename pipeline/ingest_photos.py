@@ -36,6 +36,13 @@ MANIFEST = os.path.join(ROOT, "data", "photos.yaml")
 LOOPS = os.path.join(ROOT, "data", "loops")
 
 EXTS = {".jpg", ".jpeg", ".png", ".heic"}
+# Live Photos arrive as a HEIC plus a MOV of the same name. The still is what a web
+# page needs; the movie is 4-5 MB of nothing useful here.
+SKIP_EXTS = {".mov", ".mp4", ".aae"}
+# NAS and OS droppings that are not photographs.
+SKIP_NAMES = {"@eadir", ".ds_store", "thumbs.db", ".spotlight-v100"}
+MAX_EDGE = 2000          # published long edge; phones now shoot 5712 px
+JPEG_QUALITY = 78
 MAX_MATCH_FT = 160.0     # beyond this a GPS fix is not confidently "that site"
 EARTH_FT = 20925721.8
 
@@ -51,7 +58,7 @@ def _rational(buf, off, endian):
 
 def read_exif(path):
     """Return {'gps': (lat, lon) | None, 'taken': 'YYYY-MM-DD' | None}."""
-    out = {"gps": None, "taken": None}
+    out = {"gps": None, "taken": None, "orientation": None}
     try:
         data = open(path, "rb").read(256 * 1024)
     except OSError:
@@ -95,6 +102,8 @@ def read_exif(path):
             gps_off = ptr(voff)
         elif tag == 0x8769:
             exif_off = ptr(voff)
+        elif tag == 0x0112:                      # Orientation
+            out["orientation"] = struct.unpack(endian + "H", app1[voff:voff + 2])[0]
 
     if exif_off:
         for tag, typ, cnt, voff in entries(exif_off):
@@ -153,11 +162,86 @@ def feet_between(a_lat, a_lon, b_lat, b_lon):
 
 
 def site_from_name(name, valid):
-    for m in re.finditer(r"\b(\d{3,4})\b", name):
+    # Skip the yyyymmdd_hhmmss in phone filenames, or IMG_20251116_170758 matches
+    # nothing useful and 1116 could collide with a real site number.
+    cleaned = re.sub(r"\b(19|20)\d{6}[_-]?\d{0,6}\b", " ", name)
+    for m in re.finditer(r"(?<!\d)(\d{3,4})(?!\d)", cleaned):
         n = int(m.group(1))
         if n in valid:
             return n
     return None
+
+
+def date_from_name(name):
+    """Phone filenames carry the capture time when EXIF has been stripped."""
+    m = re.search(r"\b((?:19|20)\d{2})(\d{2})(\d{2})\b", name)
+    if m:
+        y, mo, d = m.groups()
+        if "01" <= mo <= "12" and "01" <= d <= "31":
+            return f"{y}-{mo}-{d}"
+    return None
+
+
+def collect(root):
+    """Every photo under incoming/, with the folder name as a site hint."""
+    found = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d.lower() not in SKIP_NAMES
+                       and not d.startswith(".")]
+        hint = os.path.basename(dirpath)
+        hint = int(hint) if hint.isdigit() else None
+        for fn in sorted(filenames):
+            if fn.lower() in SKIP_NAMES or fn.startswith("."):
+                continue
+            ext = os.path.splitext(fn)[1].lower()
+            if ext in SKIP_EXTS or ext not in EXTS:
+                continue
+            found.append((os.path.join(dirpath, fn), fn, hint))
+    return found
+
+
+def convert(src, dest):
+    """Normalise to a web-sized JPEG with the rotation baked into the pixels.
+
+    Browsers honour EXIF orientation, but resizing tools routinely drop the tag and
+    leave the image sideways. Baking it in removes the question. Uses macOS sips,
+    which is the only image tool this project assumes.
+    """
+    import subprocess
+    def dims(path):
+        out = subprocess.run(["sips", "-g", "pixelWidth", "-g", "pixelHeight", path],
+                             capture_output=True).stdout.decode()
+        w = h = 0
+        for line in out.splitlines():
+            if "pixelWidth" in line:
+                w = int(line.split(":")[1])
+            elif "pixelHeight" in line:
+                h = int(line.split(":")[1])
+        return w, h
+
+    src_w, src_h = dims(src)
+    # Only ever shrink. Passing a max larger than the image made sips upscale a
+    # 1164px photo to 3436px, which is worse than doing nothing.
+    target = min(MAX_EDGE, max(src_w, src_h)) or MAX_EDGE
+
+    # Convert and rotate in one pass. Chaining a second sips call over the output
+    # re-encoded it down to 700px.
+    ori = read_exif(src).get("orientation")
+    cmd = ["sips", "-s", "format", "jpeg",
+           "-s", "formatOptions", str(JPEG_QUALITY),
+           "-Z", str(target)]
+    if ori in (3, 6, 8):
+        cmd += ["-r", str({3: 180, 6: 90, 8: 270}[ori])]
+    cmd += [src, "--out", dest]
+
+    r = subprocess.run(cmd, capture_output=True)
+    if r.returncode != 0 or not os.path.exists(dest):
+        return False, (r.stderr or b"").decode()[:80]
+
+    out_w, out_h = dims(dest)
+    if max(out_w, out_h) > MAX_EDGE or out_w < 400:
+        return False, f"unexpected output size {out_w}x{out_h} from {src_w}x{src_h}"
+    return True, None
 
 
 def main():
@@ -166,27 +250,27 @@ def main():
     args = ap.parse_args()
 
     os.makedirs(INCOMING, exist_ok=True)
-    files = [f for f in sorted(os.listdir(INCOMING))
-             if os.path.splitext(f)[1].lower() in EXTS]
-    if not files:
-        print(f"  nothing in incoming/ — drop photos there and run this again")
+    found = collect(INCOMING)
+    if not found:
+        print("  nothing in incoming/ — drop photos there and run this again")
         return
 
     sites = known_sites()
     valid = {n for n, _, _, _, _ in sites}
-    manifest = yaml.safe_load(open(MANIFEST)) if os.path.exists(MANIFEST) else {}
+    manifest = yaml.safe_load(open(MANIFEST)) if os.path.exists(MANIFEST) else None
     manifest = manifest or {"photos": []}
-    existing = {p["file"] for p in manifest["photos"]}
 
     planned, unmatched = [], []
-    for f in files:
-        path = os.path.join(INCOMING, f)
-        size = os.path.getsize(path)
+    for path, fn, folder_hint in found:
         exif = read_exif(path)
+        size = os.path.getsize(path)
 
-        site = site_from_name(f, valid)
-        how, dist = ("filename", None) if site else (None, None)
-
+        site, how, dist = None, None, None
+        if folder_hint in valid:
+            site, how = folder_hint, "folder"
+        if site is None:
+            site = site_from_name(fn, valid)
+            how = "filename" if site else None
         if site is None and exif["gps"]:
             best = min(sites, key=lambda s: feet_between(
                 exif["gps"][0], exif["gps"][1], s[2], s[3]))
@@ -194,41 +278,62 @@ def main():
             if d <= MAX_MATCH_FT:
                 site, how, dist = best[0], "gps", round(d, 1)
 
+        taken = exif["taken"] or date_from_name(fn)
         if site is None:
-            unmatched.append((f, size, exif))
+            unmatched.append((fn, size, exif))
             continue
-        planned.append({"src": f, "site": site, "how": how, "dist": dist,
-                        "taken": exif["taken"], "gps": exif["gps"], "size": size})
+        planned.append({"src": path, "name": fn, "site": site, "how": how,
+                        "dist": dist, "taken": taken, "gps": exif["gps"],
+                        "size": size, "orientation": exif["orientation"]})
 
-    print(f"  {len(files)} file(s) in incoming/\n")
+    print(f"  {len(found)} photo(s) under incoming/\n")
+    counts = {}
     for p in planned:
-        n = sum(1 for q in manifest["photos"] if q["site"] == p["site"]) + \
-            sum(1 for q in planned[:planned.index(p)] if q["site"] == p["site"])
-        # Keep the real format. Naming a PNG or a HEIC ".jpg" would be a lie the
-        # browser sniffs past but every other tool trips over.
-        ext = os.path.splitext(p["src"])[1].lower()
-        ext = ".jpg" if ext == ".jpeg" else ext
-        dest = f"static/photos/{p['site']}-{n + 1}{ext}"
+        prior = sum(1 for q in manifest["photos"] if q["site"] == p["site"])
+        counts[p["site"]] = counts.get(p["site"], prior) + 1
+        p["dest"] = f"static/photos/{p['site']}-{counts[p['site']]}.jpg"
         via = p["how"] + (f", {p['dist']} ft away" if p["dist"] is not None else "")
-        big = "  (large — consider resizing)" if p["size"] > 3_000_000 else ""
-        print(f"  {p['src']:<28} -> site {p['site']}  [{via}]{big}")
-        p["dest"] = dest
+        rot = f"  rotate {({3: 180, 6: 90, 8: 270}).get(p['orientation'], 0)}deg" \
+              if p["orientation"] in (3, 6, 8) else ""
+        mb = p["size"] / 1e6
+        print(f"  {p['name']:<30} -> site {p['site']}  [{via}]"
+              f"  {mb:.1f}MB{rot}")
     if unmatched:
         print()
-        for f, size, exif in unmatched:
-            why = "no site number in the name, no GPS" if not exif["gps"] else \
-                  "GPS is not near any known site"
-            print(f"  {f:<28} -> LEFT ALONE  ({why})")
+        for fn, size, exif in unmatched:
+            why = "no site number, no GPS" if not exif["gps"] else "GPS not near a site"
+            print(f"  {fn:<30} -> LEFT ALONE  ({why})")
+
+    skipped = 0
+    for dirpath, dirnames, filenames in os.walk(INCOMING):
+        dirnames[:] = [d for d in dirnames if d.lower() not in SKIP_NAMES
+                       and not d.startswith(".")]
+        skipped += sum(1 for f in filenames
+                       if os.path.splitext(f)[1].lower() in SKIP_EXTS)
+    if skipped:
+        print(f"\n  {skipped} Live Photo movie(s) ignored — the still is what a page needs")
 
     if not args.apply:
         print(f"\n  dry run. {len(planned)} would be filed, {len(unmatched)} left alone.")
-        print("  Re-run with --apply to move them.")
+        print("  Re-run with --apply to convert and move them.")
         return
 
     os.makedirs(PHOTOS, exist_ok=True)
+    done = 0
     for p in planned:
         dest_abs = os.path.join(ROOT, p["dest"])
-        shutil.move(os.path.join(INCOMING, p["src"]), dest_abs)
+        ok, err = convert(p["src"], dest_abs)
+        if not ok:
+            print(f"  {p['name']}: CONVERSION FAILED {err}")
+            continue
+        # The source is moved aside, never deleted. A conversion can go wrong in
+        # ways that are not obvious until the page is looked at, and the original
+        # is the only thing that makes that recoverable.
+        keep = os.path.join(INCOMING, "_filed",
+                            os.path.relpath(p["src"], INCOMING))
+        os.makedirs(os.path.dirname(keep), exist_ok=True)
+        shutil.move(p["src"], keep)
+        done += 1
         manifest["photos"].append({
             "site": p["site"],
             "file": "/" + p["dest"].split("static/", 1)[1],

@@ -1,0 +1,47 @@
+photos:
+- site: 101
+  file: /photos/101-1.jpg
+  taken: null
+  matched_by: filename
+  gps: null
+  gps_distance_ft: null
+  credit: own
+  added: '2026-09-03'
+- site: 1420
+  file: /photos/1420-1.jpg
+  taken: null
+  matched_by: folder
+  gps: null
+  gps_distance_ft: null
+  credit: own
+  added: '2026-09-03'
+- site: 1420
+  file: /photos/1420-2.jpg
+  taken: '2025-11-16'
+  matched_by: folder
+  gps:
+  - 28.4083639
+  - -81.5580583
+  gps_distance_ft: null
+  credit: own
+  added: '2026-09-03'
+- site: 1420
+  file: /photos/1420-3.jpg
+  taken: '2025-11-16'
+  matched_by: folder
+  gps:
+  - 28.4084444
+  - -81.5578778
+  gps_distance_ft: null
+  credit: own
+  added: '2026-09-03'
+- site: 1420
+  file: /photos/1420-4.jpg
+  taken: '2025-11-16'
+  matched_by: folder
+  gps:
+  - 28.4083056
+  - -81.5580528
+  gps_distance_ft: null
+  credit: own
+  added: '2026-09-03'
