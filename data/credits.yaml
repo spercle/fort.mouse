@@ -1,0 +1,42 @@
+decoration:
+- id: loop-400-airstream
+  file: /cc/loop-400-airstream.jpg
+  title: 2007 Airstream International at Loop 400
+  creator: foqus
+  licence: BY 2.0
+  licence_url: https://creativecommons.org/licenses/by/2.0/
+  landing: https://www.flickr.com/photos/86485152@N00/2969945960
+  note: The only loop-specific freely-licensed photo of Fort Wilderness found anywhere.
+    Loop 400, Whispering Pine Way.
+- id: trail-ride
+  file: /cc/trail-ride.jpg
+  title: Trail ride, Fort Wilderness Campground
+  creator: gruntzooki
+  licence: BY SA-2.0
+  licence_url: https://creativecommons.org/licenses/by-sa/2.0/
+  landing: https://www.flickr.com/photos/37996580417@N01/335736635
+  note: Tri-Circle-D Ranch trail ride.
+- id: abandoned-trail
+  file: /cc/abandoned-trail.jpg
+  title: Abandoned trail at Disney's Fort Wilderness
+  creator: Marco from Orlando, Florida
+  licence: BY 2.0
+  licence_url: https://creativecommons.org/licenses/by/2.0/
+  landing: https://commons.wikimedia.org/w/index.php?curid=47087441
+  note: One of the closed trails — the vintage Fort Wilderness people miss.
+- id: railroad-remnants
+  file: /cc/railroad-remnants.jpg
+  title: Fort Wilderness Railroad track remnants
+  creator: Evan Wohrman
+  licence: BY SA-2.0
+  licence_url: https://creativecommons.org/licenses/by-sa/2.0/
+  landing: https://www.flickr.com/photos/46027550@N00/50138385543
+  note: The Fort Wilderness Railroad ran 1973-1980. Track is still findable.
+- id: trailer-christmas-lights
+  file: /cc/trailer-christmas-lights.jpg
+  title: Trailer Christmas lights, Fort Wilderness Campground
+  creator: gruntzooki
+  licence: BY SA-2.0
+  licence_url: https://creativecommons.org/licenses/by-sa/2.0/
+  landing: https://www.flickr.com/photos/37996580417@N01/335744033
+  note: The loops at Christmas, 2006.

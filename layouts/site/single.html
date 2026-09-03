@@ -11,7 +11,7 @@
 
 <div class="site-head">
   <p class="eyebrow trail">
-    <a href="/loop/{{ $loop.loop }}/">Loop {{ $loop.loop }}</a> · {{ $loop.loop_name }}
+    <a href="{{ printf "loop/%v/" $loop.loop | relURL }}">Loop {{ $loop.loop }}</a> · {{ $loop.loop_name }}
   </p>
 
   {{/* The post at the head of the site, which is what a guest actually looks for. */}}
@@ -67,7 +67,7 @@
 <section>
   <h2>From above</h2>
   <figure class="aerial">
-    <img src="{{ . }}" width="512" height="512" loading="lazy"
+    <img src="{{ strings.TrimPrefix "/" . | relURL }}" width="512" height="512" loading="lazy"
          alt="Aerial view of the ground around site {{ $s.site_number }}">
     <figcaption>
       Orange County 2025 orthoimagery, ~120 ft across. Public record under Florida
@@ -153,9 +153,9 @@
   {{ end }}
 {{ end }}
 <nav class="neighbours">
-  {{ if $prev }}<a class="nb nb-prev" href="/site/{{ $prev }}/"><span>Previous</span><b>{{ $prev }}</b></a>{{ else }}<span></span>{{ end }}
-  <a class="nb nb-loop" href="/loop/{{ $loop.loop }}/"><span>All of</span><b>Loop {{ $loop.loop }}</b></a>
-  {{ if $next }}<a class="nb nb-next" href="/site/{{ $next }}/"><span>Next</span><b>{{ $next }}</b></a>{{ else }}<span></span>{{ end }}
+  {{ if $prev }}<a class="nb nb-prev" href="{{ printf "site/%v/" $prev | relURL }}"><span>Previous</span><b>{{ $prev }}</b></a>{{ else }}<span></span>{{ end }}
+  <a class="nb nb-loop" href="{{ printf "loop/%v/" $loop.loop | relURL }}"><span>All of</span><b>Loop {{ $loop.loop }}</b></a>
+  {{ if $next }}<a class="nb nb-next" href="{{ printf "site/%v/" $next | relURL }}"><span>Next</span><b>{{ $next }}</b></a>{{ else }}<span></span>{{ end }}
 </nav>
 
 <section class="photo-wanted">

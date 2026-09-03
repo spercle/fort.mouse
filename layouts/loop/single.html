@@ -6,7 +6,7 @@
 {{ end }}
 
 <section>
-  <p class="eyebrow trail"><a href="/">All loops</a></p>
+  <p class="eyebrow trail"><a href="{{ "" | relURL }}">All loops</a></p>
 
   {{/* One board, the way a loop entrance sign actually reads. */}}
   <h1 class="marker marker-loop">
@@ -72,7 +72,7 @@
 <section>
   <h2>The loop from above</h2>
   <figure class="aerial aerial-loop">
-    <img src="{{ . }}" width="900" height="900" loading="lazy"
+    <img src="{{ strings.TrimPrefix "/" . | relURL }}" width="900" height="900" loading="lazy"
          alt="Aerial view of Loop {{ $loop.loop }}, {{ $loop.loop_name }}">
     <figcaption>
       Orange County 2025 orthoimagery, framed on the loop road. Public record under
@@ -91,7 +91,7 @@
   <div class="sites">
     {{ range $loop.sites }}
       {{ $len := index .fields "pad_length_ft" }}
-      <a class="site-chip" href="/site/{{ .site_number }}/"
+      <a class="site-chip" href="{{ printf "site/%v/" .site_number | relURL }}"
          data-measured="{{ if and .is_measured (ne $len.source "seeded") }}true{{ else }}false{{ end }}"
          {{ if eq $len.source "seeded" }}data-seeded="true"{{ end }}>
         <b>{{ .site_number }}</b>

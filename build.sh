@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Full build: validate, resolve, render.
+# Full deterministic build. Everything here works offline from committed data,
+# so CI and a laptop produce the same site.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -10,6 +11,17 @@ if pgrep -f "hugo server" > /dev/null 2>&1; then
   echo "A dev server rebuilds on its own; you do not need build.sh while it runs." >&2
   exit 1
 fi
+
 python3 pipeline/build_data.py
-hugo --logLevel warn --cleanDestinationDir
-echo "-> public/  (rsync -a --delete public/ user@server:/var/www/fortmouse/)"
+python3 pipeline/loop_maps.py  > /dev/null
+python3 pipeline/loop_signs.py > /dev/null
+
+# Icons take ~10s to rasterise and never change. Rebuild only when missing,
+# or when asked with:  ./build.sh --icons
+if [ "${1:-}" = "--icons" ] || [ ! -f static/icon-512.png ]; then
+  python3 pipeline/icons.py > /dev/null
+fi
+
+hugo --minify --cleanDestinationDir "${@:2}"
+echo
+echo "-> public/  ($(find public -name '*.html' | wc -l | tr -d ' ') pages)"

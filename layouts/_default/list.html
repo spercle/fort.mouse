@@ -1,6 +1,6 @@
 {{ define "main" }}
 <section>
-  <p class="eyebrow trail"><a href="/">Home</a></p>
+  <p class="eyebrow trail"><a href="{{ "" | relURL }}">Home</a></p>
   <h1>{{ if eq .Section "site" }}All sites{{ else }}All loops{{ end }}</h1>
 
   {{/* Iterate the data, not .Pages — .ByTitle string-sorts "Site 1001" above
@@ -24,7 +24,7 @@
       {{ $l := . }}
       <section class="loop-block" id="loop-{{ $l.loop }}">
         <h2>
-          <a href="/loop/{{ $l.loop }}/">Loop {{ $l.loop }}</a>
+          <a href="{{ printf "loop/%v/" $l.loop | relURL }}">Loop {{ $l.loop }}</a>
           <span class="loop-block-sub">
             {{ $l.loop_name }} · {{ $l.category }} · {{ $l.site_count }} sites
           </span>
@@ -33,7 +33,7 @@
           {{ range $l.sites }}
             {{ $len := index .fields "pad_length_ft" }}
             {{ $mine := and .is_measured (ne $len.source "seeded") }}
-            <a class="site-chip" href="/site/{{ .site_number }}/"
+            <a class="site-chip" href="{{ printf "site/%v/" .site_number | relURL }}"
                data-measured="{{ if $mine }}true{{ else }}false{{ end }}"
                {{ if eq $len.source "seeded" }}data-seeded="true"{{ end }}>
               <b>{{ .site_number }}</b>
@@ -50,7 +50,7 @@
     <p class="lede">The 21 campsite loops at Fort Wilderness.</p>
     <div class="loops">
       {{ range $loops }}
-        <a class="loop-card" href="/loop/{{ .loop }}/">
+        <a class="loop-card" href="{{ printf "loop/%v/" .loop | relURL }}">
           {{ $thumb := printf "static/loop-map/%v-thumb.svg" .loop }}
           {{ if fileExists $thumb }}
             <div class="loop-thumb">{{ readFile $thumb | safeHTML }}</div>

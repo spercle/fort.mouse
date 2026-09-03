@@ -30,18 +30,48 @@ years.
 ## Build and run
 
 ```bash
-./build.sh          # validate -> resolve -> render.  Output in public/
-hugo server         # live preview on http://localhost:1313
+./serve.sh          # live preview at http://localhost:1313 — use this while working
+./build.sh          # full deterministic build. Output in public/
+./build.sh --icons  # ...and re-rasterise the icons (~10s, rarely needed)
 ```
 
-`build.sh` refuses to run while `hugo server` is live — `--cleanDestinationDir` deletes
-`public/` out from under the server and leaves it serving 404s.
+Use `./serve.sh` rather than bare `hugo server`. The configured `baseURL` points at the
+GitHub Pages subpath, so a plain `hugo server` serves everything under
+`/fort.mouse/` and the root 404s. `serve.sh` overrides it back to `/`.
 
-**Deploy is a file copy.** No runtime on the server:
+`build.sh` refuses to run while a dev server is live — `--cleanDestinationDir` deletes
+`public/` out from under it and leaves it serving 404s.
+
+## Deploying
+
+### GitHub Pages (automatic)
+
+Every push to `master` builds and deploys via `.github/workflows/pages.yml`.
+
+**One-time setup:** in the repo, *Settings → Pages → Build and deployment → Source:
+**GitHub Actions***. Without that, the workflow runs and the deploy step fails.
+
+The site lands at **https://spercle.github.io/fort.mouse/** — a subpath, which is why
+every internal URL goes through Hugo's `relURL`.
+
+> **Careful with `relURL`:** Hugo treats a leading `/` as *already relative to the host
+> root* and will skip the baseURL subpath entirely. `{{ "/css/x.css" | relURL }}` gives
+> `/css/x.css`; `{{ "css/x.css" | relURL }}` gives `/fort.mouse/css/x.css`. Always pass
+> the path **without** a leading slash.
+
+CI regenerates only what is free and offline — resolved data, campground maps, loop
+signs, icons. Aerials and CC imagery are **committed**, so the build never re-fetches
+from Orange County's GIS server or Flickr.
+
+### Anywhere else
+
+The output is inert files. No runtime, no database:
 
 ```bash
 rsync -a --delete public/ user@server:/var/www/fortmouse/
 ```
+
+Change `baseURL` in `hugo.toml` to match wherever it lands.
 
 ---
 

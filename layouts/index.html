@@ -76,7 +76,7 @@
 
   <div class="loops">
     {{ range $loops }}
-      <a class="loop-card" href="/loop/{{ .loop }}/">
+      <a class="loop-card" href="{{ printf "loop/%v/" .loop | relURL }}">
         {{ $thumb := printf "static/loop-map/%v-thumb.svg" .loop }}
         {{ if fileExists $thumb }}
           <div class="loop-thumb">{{ readFile $thumb | safeHTML }}</div>

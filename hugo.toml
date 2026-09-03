@@ -1,4 +1,6 @@
-baseURL = "/"
+# GitHub Pages serves project sites from a subpath, so every internal URL
+# must go through relURL. Override locally with:  hugo server --baseURL /
+baseURL = "https://spercle.github.io/fort.mouse/"
 locale = "en-us"
 title = "fort.mouse"
 

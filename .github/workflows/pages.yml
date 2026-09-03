@@ -1,0 +1,68 @@
+name: Build and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# One deploy at a time; let a running one finish rather than cancelling it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.164.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Hugo (extended)
+        run: |
+          curl -sSL -o hugo.deb \
+            "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
+          sudo dpkg -i hugo.deb
+          hugo version
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install the one Python dependency
+        run: pip install pyyaml
+
+      # Fails the build on a bad value rather than shipping it. The same check
+      # runs locally; see docs/site-structure.md.
+      - name: Validate data
+        run: python3 pipeline/validate.py
+
+      - name: Prove the measurement maths
+        working-directory: pipeline
+        run: python3 test_geom.py
+
+      # Regenerates only what is free and offline: resolved data, campground maps,
+      # loop signs, icons. Aerials and CC imagery are committed, because CI should
+      # not re-fetch them from Orange County and Flickr on every push.
+      - name: Build
+        run: ./build.sh
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
