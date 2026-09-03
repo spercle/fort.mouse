@@ -48,8 +48,16 @@ GitHub Pages subpath, so a plain `hugo server` serves everything under
 
 Every push to `master` builds and deploys via `.github/workflows/pages.yml`.
 
-**One-time setup:** in the repo, *Settings → Pages → Build and deployment → Source:
-**GitHub Actions***. Without that, the workflow runs and the deploy step fails.
+The workflow turns Pages on itself (`configure-pages` with `enablement: true`), so no
+setup should be needed. If the first run still fails with:
+
+```
+Get Pages site failed. Please verify that the repository has Pages enabled
+```
+
+set it by hand once: *Settings → Pages → Build and deployment → Source: **GitHub
+Actions*** — then re-run the job. Enablement over the API needs the repo to permit it,
+which some org and private repos do not.
 
 The site lands at **https://spercle.github.io/fort.mouse/** — a subpath, which is why
 every internal URL goes through Hugo's `relURL`.
