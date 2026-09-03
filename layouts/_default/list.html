@@ -1,28 +1,63 @@
 {{ define "main" }}
 <section>
-  <p class="eyebrow"><a href="/">Home</a></p>
+  <p class="eyebrow trail"><a href="/">Home</a></p>
   <h1>{{ if eq .Section "site" }}All sites{{ else }}All loops{{ end }}</h1>
+
+  {{/* Iterate the data, not .Pages — .ByTitle string-sorts "Site 1001" above
+       "Site 101", and an 845-item flat wall is unusable regardless. */}}
+  {{ $loops := slice }}
+  {{ range $k, $v := hugo.Data }}
+    {{ if and (reflect.IsMap $v) (isset $v "loop") }}{{ $loops = $loops | append $v }}{{ end }}
+  {{ end }}
+  {{ $loops = sort $loops "loop" }}
+
   {{ if eq .Section "site" }}
-    <p class="lede">Every campsite the guide knows about. Green means we measured it.</p>
-    <div class="sites">
-      {{ range .Pages.ByTitle }}
-        {{ $s := .Params.site }}{{ $len := index $s.fields "pad_length_ft" }}
-        <a class="site-chip" href="{{ .RelPermalink }}"
-           data-measured="{{ if and $s.is_measured (ne $len.source "seeded") }}true{{ else }}false{{ end }}"
-           {{ if eq $len.source "seeded" }}data-seeded="true"{{ end }}>
-          <b>{{ $s.site_number }}</b>
-          <span>{{ if eq $len.state "measured" }}{{ $len.value }} ft{{ else }}{{ $len.state }}{{ end }}</span>
-        </a>
-      {{ end }}
-    </div>
+    <p class="lede">
+      Every campsite the guide knows about, by loop. Green means we measured it.
+    </p>
+
+    <nav class="jump">
+      {{ range $loops }}<a href="#loop-{{ .loop }}">{{ .loop }}</a>{{ end }}
+    </nav>
+
+    {{ range $loops }}
+      {{ $l := . }}
+      <section class="loop-block" id="loop-{{ $l.loop }}">
+        <h2>
+          <a href="/loop/{{ $l.loop }}/">Loop {{ $l.loop }}</a>
+          <span class="loop-block-sub">
+            {{ $l.loop_name }} · {{ $l.category }} · {{ $l.site_count }} sites
+          </span>
+        </h2>
+        <div class="sites">
+          {{ range $l.sites }}
+            {{ $len := index .fields "pad_length_ft" }}
+            {{ $mine := and .is_measured (ne $len.source "seeded") }}
+            <a class="site-chip" href="/site/{{ .site_number }}/"
+               data-measured="{{ if $mine }}true{{ else }}false{{ end }}"
+               {{ if eq $len.source "seeded" }}data-seeded="true"{{ end }}>
+              <b>{{ .site_number }}</b>
+              <span>
+                {{ if eq $len.state "measured" }}{{ $len.value }} ft{{ else }}{{ $len.state }}{{ end }}
+              </span>
+            </a>
+          {{ end }}
+        </div>
+      </section>
+    {{ end }}
+
   {{ else }}
+    <p class="lede">The 21 campsite loops at Fort Wilderness.</p>
     <div class="loops">
-      {{ range .Pages.ByTitle }}
-        {{ $l := .Params.loop }}
-        <a class="loop-card" href="{{ .RelPermalink }}">
-          <span class="loop-id">Loop {{ $l.loop }}</span>
-          <span class="loop-name">{{ $l.loop_name }} · {{ $l.category }}</span>
-          <div class="loop-stats"><span>{{ $l.site_count }} sites</span></div>
+      {{ range $loops }}
+        <a class="loop-card" href="/loop/{{ .loop }}/">
+          {{ $thumb := printf "static/loop-map/%v-thumb.svg" .loop }}
+          {{ if fileExists $thumb }}
+            <div class="loop-thumb">{{ readFile $thumb | safeHTML }}</div>
+          {{ end }}
+          <span class="loop-id">Loop {{ .loop }}</span>
+          <span class="loop-name">{{ .loop_name }} · {{ .category }}</span>
+          <div class="loop-stats"><span>{{ .site_count }} sites</span></div>
         </a>
       {{ end }}
     </div>

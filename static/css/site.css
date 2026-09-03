@@ -676,3 +676,40 @@ figure.aerial-loop img {
 }
 figure.aerial-loop figcaption { max-width: none; }
 .loop-map { border: 3px solid var(--bark); border-radius: 3px; overflow: hidden; }
+
+/* ---------- all-sites index ---------- */
+
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin: 1.25rem 0 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+.jump a {
+  font-family: var(--mono);
+  font-size: .72rem;
+  padding: .3em .55em;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  text-decoration: none;
+  color: var(--ink-2);
+  background: var(--surface);
+}
+.jump a:hover { border-color: var(--accent); color: var(--accent); }
+
+.loop-block { scroll-margin-top: 5rem; }
+.loop-block + .loop-block { margin-top: 2.25rem; }
+.loop-block h2 a { color: inherit; text-decoration: none; }
+.loop-block h2 a:hover { color: var(--accent); }
+.loop-block-sub {
+  display: block;
+  font-family: var(--mono);
+  font-size: .72rem;
+  font-weight: 400;
+  letter-spacing: .04em;
+  color: var(--muted);
+  margin-top: .2rem;
+  margin-left: 1.1em;
+}
