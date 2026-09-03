@@ -1,0 +1,54 @@
+{{ define "main" }}
+<section>
+  <p class="eyebrow"><a href="/">Home</a></p>
+  <h1>Credits and sources</h1>
+  <p class="lede">Every figure and every image on this site, and where it came from.</p>
+</section>
+
+<section>
+  <h2>Measurements</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Source</th><th>What it gives us</th></tr></thead>
+    <tbody>
+      <tr><td>Orange County / State of Florida 2025 orthoimagery</td><td>Pad dimensions, orientation, canopy, and every aerial image on this site. Public record under Florida Statutes ch. 119.</td></tr>
+      <tr><td>Orange County address ranges</td><td>Loop identity and number blocks. Public record.</td></tr>
+      <tr><td>OpenStreetMap</td><td>Loop road centrelines. © OpenStreetMap contributors, ODbL.</td></tr>
+      <tr><td>Disney, published rates</td><td>Category pad maxima, sewer, occupancy. Always labelled as a category maximum, never as a measurement of a site.</td></tr>
+      <tr><td>Guests</td><td>First-hand reports about sites they stayed on.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+{{ with (index hugo.Data "credits") }}
+<section>
+  <h2>Photographs</h2>
+  <p>
+    Every image on a site page is an aerial we cut ourselves from public-record county
+    imagery, or a photo a guest sent us. The images below are freely licensed work by
+    other people, used for decoration only — never on a site page, where they could be
+    mistaken for evidence about the site you are looking at.
+  </p>
+  <div class="credit-grid">
+    {{ range .decoration }}
+      <figure class="credit-card">
+        <img src="{{ .file }}" alt="{{ .title }}" loading="lazy">
+        <figcaption>
+          <b>{{ .title }}</b><br>
+          by {{ .creator }} · <a href="{{ .licence_url }}" rel="license">CC {{ .licence }}</a><br>
+          <a href="{{ .landing }}">original</a>
+          {{ with .note }}<br><span class="muted">{{ . }}</span>{{ end }}
+        </figcaption>
+      </figure>
+    {{ end }}
+  </div>
+</section>
+{{ end }}
+
+<section>
+  <h2>What we don't use</h2>
+  <p>
+    No photographs from other Fort Wilderness guides. A measurement is a fact and can be
+    credited and reused; a photograph is a creative work and can't, absent permission.
+  </p>
+</section>
+{{ end }}

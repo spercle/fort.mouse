@@ -1,0 +1,31 @@
+{{ define "main" }}
+<section>
+  <p class="eyebrow"><a href="/">Home</a></p>
+  <h1>{{ if eq .Section "site" }}All sites{{ else }}All loops{{ end }}</h1>
+  {{ if eq .Section "site" }}
+    <p class="lede">Every campsite the guide knows about. Green means we measured it.</p>
+    <div class="sites">
+      {{ range .Pages.ByTitle }}
+        {{ $s := .Params.site }}{{ $len := index $s.fields "pad_length_ft" }}
+        <a class="site-chip" href="{{ .RelPermalink }}"
+           data-measured="{{ if and $s.is_measured (ne $len.source "seeded") }}true{{ else }}false{{ end }}"
+           {{ if eq $len.source "seeded" }}data-seeded="true"{{ end }}>
+          <b>{{ $s.site_number }}</b>
+          <span>{{ if eq $len.state "measured" }}{{ $len.value }} ft{{ else }}{{ $len.state }}{{ end }}</span>
+        </a>
+      {{ end }}
+    </div>
+  {{ else }}
+    <div class="loops">
+      {{ range .Pages.ByTitle }}
+        {{ $l := .Params.loop }}
+        <a class="loop-card" href="{{ .RelPermalink }}">
+          <span class="loop-id">Loop {{ $l.loop }}</span>
+          <span class="loop-name">{{ $l.loop_name }} · {{ $l.category }}</span>
+          <div class="loop-stats"><span>{{ $l.site_count }} sites</span></div>
+        </a>
+      {{ end }}
+    </div>
+  {{ end }}
+</section>
+{{ end }}

@@ -1,0 +1,6 @@
+{{/* One verdict tile. The value already knows its state and source. */}}
+{{ $f := .field }}
+<div class="fact" data-state="{{ $f.state }}"{{ with $f.source }} data-source="{{ . }}"{{ end }}{{ with $f.note }} title="{{ . }}"{{ end }}>
+  <span class="fact-v">{{ $f.display }}</span>
+  <span class="fact-k">{{ .label }}</span>
+</div>

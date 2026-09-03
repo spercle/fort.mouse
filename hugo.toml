@@ -1,0 +1,21 @@
+baseURL = "/"
+locale = "en-us"
+title = "fort.mouse"
+
+# Hugo sees ONLY data/resolved/, mounted as its data directory. The rest of data/ is
+# the pipeline's working material — machine-owned loops, human-owned seeds, reference
+# GeoJSON — and Hugo has no business parsing any of it.
+# Regenerate the mounted output with: python3 pipeline/build_data.py
+[[module.mounts]]
+  source = "data/resolved"
+  target = "data"
+
+disableKinds = ["taxonomy", "term", "rss"]
+enableRobotsTXT = true
+
+[permalinks]
+  site = "/site/:slug/"
+  loop = "/loop/:slug/"
+
+[markup.goldmark.renderer]
+  unsafe = true

@@ -1,0 +1,109 @@
+{{ define "main" }}
+{{ $loop := .Params.loop }}{{ $b := $loop.category_baseline }}
+
+{{ if eq $loop.status "demo" }}
+  <div class="demo-banner"><b>Demo data</b> — synthetic measurements, not real campsites.</div>
+{{ end }}
+
+<section>
+  <p class="eyebrow"><a href="/">All loops</a></p>
+  <h1>Loop {{ $loop.loop }}</h1>
+  <p class="site-sub">{{ $loop.loop_name }} · {{ $loop.category }}</p>
+
+  <div class="verdict" style="margin-top:1.25rem">
+    <div class="fact" data-state="measured"><span class="fact-v">{{ $loop.site_count }}</span><span class="fact-k">Sites</span></div>
+    <div class="fact" data-state="{{ if $loop.own_count }}measured{{ else }}unmeasured{{ end }}"><span class="fact-v">{{ $loop.own_count }}</span><span class="fact-k">Measured by us</span></div>
+    {{ if $loop.seeded_count }}<div class="fact" data-state="measured" data-source="seeded"><span class="fact-v">{{ $loop.seeded_count }}</span><span class="fact-k">Seeded</span></div>{{ end }}
+    <div class="fact" data-state="{{ if $loop.median_pad_ft }}measured{{ else }}unmeasured{{ end }}"><span class="fact-v">{{ with $loop.median_pad_ft }}{{ . }} ft{{ else }}Unmeasured{{ end }}</span><span class="fact-k">Median pad</span></div>
+    <div class="fact" data-state="{{ if $loop.longest_pad_ft }}measured{{ else }}unmeasured{{ end }}"><span class="fact-v">{{ with $loop.longest_pad_ft }}{{ . }} ft{{ else }}Unmeasured{{ end }}</span><span class="fact-k">Longest pad</span></div>
+    <div class="fact" data-state="{{ if $loop.road_length_ft }}measured{{ else }}unknown{{ end }}"><span class="fact-v">{{ with $loop.road_length_ft }}{{ math.Round . }} ft{{ else }}Unknown{{ end }}</span><span class="fact-k">Road length</span></div>
+  </div>
+
+  <p class="fallback">
+    Disney lists {{ $loop.category }} at up to {{ $b.pad_length_ft }} × {{ $b.pad_width_ft }} ft
+    — a category maximum, not a measurement of any site here.
+  </p>
+</section>
+
+{{ $map := printf "static/loop-map/%v.svg" $loop.loop }}
+{{ if fileExists $map }}
+<section>
+  <h2>The loop, to scale</h2>
+  <div class="loop-map">{{ readFile $map | safeHTML }}</div>
+  <p class="fallback">
+    Drawn from OpenStreetMap road geometry and Orange County's public address-range
+    record. Not traced from anyone's map.
+  </p>
+</section>
+{{ end }}
+
+{{ with $loop.aerial }}
+<section>
+  <h2>The loop from above</h2>
+  <figure class="aerial aerial-loop">
+    <img src="{{ . }}" width="900" height="900" loading="lazy"
+         alt="Aerial view of Loop {{ $loop.loop }}, {{ $loop.loop_name }}">
+    <figcaption>
+      Orange County 2025 orthoimagery, framed on the loop road. Public record under
+      Florida Statutes ch. 119 — see ADR-0003.
+    </figcaption>
+  </figure>
+</section>
+{{ end }}
+
+{{ with $loop.loop_note }}
+<div class="callout"><p>{{ . }}</p></div>
+{{ end }}
+
+<section>
+  <h2>Sites</h2>
+  <div class="sites">
+    {{ range $loop.sites }}
+      {{ $len := index .fields "pad_length_ft" }}
+      <a class="site-chip" href="/site/{{ .site_number }}/"
+         data-measured="{{ if and .is_measured (ne $len.source "seeded") }}true{{ else }}false{{ end }}"
+         {{ if eq $len.source "seeded" }}data-seeded="true"{{ end }}>
+        <b>{{ .site_number }}</b>
+        <span>{{ if eq $len.state "measured" }}{{ $len.value }} ft{{ else }}{{ $len.state }}{{ end }}</span>
+      </a>
+    {{ end }}
+  </div>
+</section>
+
+{{ with $loop.county_record }}
+<section>
+  <h2>Where the loop numbering comes from</h2>
+  <p>
+    Loop identity and its number ranges come from Orange County's public address-range
+    record, not from any fan map — which is why this data can be published independently.
+  </p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Segment</th><th>From</th><th>To</th><th>Length</th></tr></thead>
+      <tbody>
+        {{ range .segments }}
+          <tr>
+            <td class="num">{{ delimit .theoretical_left "–" }}</td>
+            <td>{{ .from }}</td><td>{{ .to }}</td>
+            <td class="num">{{ .length_ft }} ft</td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
+  <p class="fallback">{{ .caveat }}</p>
+</section>
+{{ end }}
+
+{{ with $loop.open_questions }}
+<section>
+  <h2>Open questions</h2>
+  {{ range . }}
+    <div class="callout" style="margin-bottom:.75rem">
+      <p>{{ .claim }}</p>
+      <p class="mono" style="font-size:.78rem;color:var(--muted)">{{ .status }} · earliest source: {{ .earliest_source }}</p>
+    </div>
+  {{ end }}
+</section>
+{{ end }}
+{{ end }}

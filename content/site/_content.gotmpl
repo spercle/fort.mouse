@@ -1,0 +1,15 @@
+{{/* Content Adapter: one page per campsite, from data/resolved/. */}}
+{{ range $key, $loop := hugo.Data }}
+  {{ if and (reflect.IsMap $loop) (isset $loop "loop") }}
+    {{ range $loop.sites }}
+      {{ $.AddPage (dict
+        "kind" "page"
+        "path" (printf "%v" .site_number)
+        "title" (printf "Site %v" .site_number)
+        "slug" (printf "%v" .site_number)
+        "params" (dict "site" . "loop" $loop)
+        "content" (dict "mediaType" "text/markdown" "value" "")
+      ) }}
+    {{ end }}
+  {{ end }}
+{{ end }}

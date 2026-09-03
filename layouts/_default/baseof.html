@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ block "title" . }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+  {{ with .Params.description }}<meta name="description" content="{{ . }}">{{ end }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap masthead-inner">
+      <a class="brand" href="/">fort<span>.</span>mouse</a>
+      <form class="lookup" id="lookup" role="search">
+        <label class="fact-k" for="site-input">Site</label>
+        <input id="site-input" name="site" type="text" inputmode="numeric"
+               autocomplete="off" placeholder="1204" aria-label="Go to a site by number">
+        <button type="submit">Go</button>
+        <span class="lookup-msg" id="lookup-msg" role="status"></span>
+      </form>
+    </div>
+  </header>
+
+  <main class="wrap">{{ block "main" . }}{{ end }}</main>
+
+  <footer class="wrap">
+    Unofficial and unaffiliated. Not authorized by, endorsed by, or connected with
+    The Walt Disney Company.<br>
+    Measurements are our own from public aerial imagery, or attributed to whoever
+    published them first and replaced as we verify them.
+  </footer>
+
+  <script>
+    // 845 records is nothing, so the lookup runs entirely in the browser.
+    const form = document.getElementById("lookup");
+    const input = document.getElementById("site-input");
+    const msg = document.getElementById("lookup-msg");
+    let known = null;
+
+    async function index() {
+      if (known) return known;
+      const rows = await (await fetch("/search-index.json")).json();
+      known = new Set(rows.map((r) => String(r.n)));
+      return known;
+    }
+    input.addEventListener("focus", () => { index(); });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const n = input.value.trim();
+      msg.textContent = "";
+      if (!/^\d+$/.test(n)) { msg.textContent = "Numbers only"; return; }
+      const set = await index();
+      if (set.has(n)) { location.href = "/site/" + n + "/"; }
+      else { msg.textContent = "No site " + n + " yet"; }
+    });
+  </script>
+</body>
+</html>

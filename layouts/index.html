@@ -1,0 +1,74 @@
+{{ define "title" }}fort.mouse — measured campsite data for Fort Wilderness{{ end }}
+{{ define "main" }}
+{{ $loops := slice }}
+{{ range $k, $v := hugo.Data }}{{ if and (reflect.IsMap $v) (isset $v "loop") }}{{ $loops = $loops | append $v }}{{ end }}{{ end }}
+{{ $loops = sort $loops "loop" }}
+{{ $sites := 0 }}{{ $own := 0 }}{{ $seeded := 0 }}
+{{ range $loops }}
+  {{ $sites = add $sites .site_count }}
+  {{ $own = add $own .own_count }}
+  {{ $seeded = add $seeded .seeded_count }}
+{{ end }}
+
+<section>
+  <p class="eyebrow">Disney's Fort Wilderness Resort &amp; Campground</p>
+  <h1>Measured, not repeated.</h1>
+  <p class="lede">
+    You don't choose your campsite at Fort Wilderness — you book a category, request a
+    loop, and a cast member assigns you a number at check-in. This is the reference for
+    what that number actually gets you.
+  </p>
+  <p>
+    Every figure is measured from public aerial imagery, comes from Disney's own published
+    specs, or is credited to whoever published it first until we verify it ourselves.
+    Where something hasn't been measured, the page says so rather than quietly leaving it out.
+  </p>
+</section>
+
+<section>
+  <h2>Loops</h2>
+  <div class="convergence">
+    <span>{{ $own }} of {{ $sites }} measured by us</span>
+    <span class="meter"><i style="width:{{ if $sites }}{{ div (mul $own 100.0) $sites }}{{ else }}0{{ end }}%"></i></span>
+    {{ if $seeded }}<span>{{ $seeded }} still seeded</span>{{ end }}
+  </div>
+
+  <div class="loops">
+    {{ range $loops }}
+      <a class="loop-card" href="/loop/{{ .loop }}/">
+        {{ $thumb := printf "static/loop-map/%v-thumb.svg" .loop }}
+        {{ if fileExists $thumb }}
+          <div class="loop-thumb">{{ readFile $thumb | safeHTML }}</div>
+        {{ end }}
+        <span class="loop-id">Loop {{ .loop }}</span>
+        <span class="loop-name">{{ .loop_name }} · {{ .category }}</span>
+        <div class="loop-stats">
+          <span>{{ .site_count }} sites</span>
+          {{ with .median_pad_ft }}<span>median {{ . }} ft</span>{{ end }}
+          {{ with .longest_pad_ft }}<span>longest {{ . }} ft</span>{{ end }}
+        </div>
+        <div class="meter" aria-hidden="true">
+          <i style="width:{{ if .site_count }}{{ div (mul .own_count 100.0) .site_count }}{{ else }}0{{ end }}%"></i>
+        </div>
+        <span class="loop-name">{{ .own_count }} of {{ .site_count }} measured</span>
+      </a>
+    {{ end }}
+  </div>
+</section>
+
+{{ $any := false }}
+{{ range $loops }}{{ if .open_questions }}{{ $any = true }}{{ end }}{{ end }}
+{{ if $any }}
+<section>
+  <h2>Open questions</h2>
+  {{ range $loop := $loops }}{{ range $loop.open_questions }}
+    <div class="callout" style="margin-bottom:.75rem">
+      <p><b>Loop {{ $loop.loop }}</b> — {{ .claim }}</p>
+      <p class="mono" style="font-size:.78rem;color:var(--muted)">
+        {{ .status }} · earliest source: {{ .earliest_source }}
+      </p>
+    </div>
+  {{ end }}{{ end }}
+</section>
+{{ end }}
+{{ end }}

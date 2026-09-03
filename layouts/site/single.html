@@ -1,0 +1,140 @@
+{{ define "main" }}
+{{ $s := .Params.site }}{{ $loop := .Params.loop }}{{ $b := $loop.category_baseline }}
+{{ $len := index $s.fields "pad_length_ft" }}
+
+{{ if eq $loop.status "demo" }}
+  <div class="demo-banner">
+    <b>Demo data</b> — every measurement on this page is synthetic, generated so the
+    layout can be seen populated. None of it describes a real campsite.
+  </div>
+{{ end }}
+
+<div class="site-head">
+  <p class="eyebrow"><a href="/loop/{{ $loop.loop }}/">Loop {{ $loop.loop }}</a> · {{ $loop.loop_name }}</p>
+  <h1>Site {{ $s.site_number }}</h1>
+  <p class="site-sub">{{ $loop.category }} · sewer {{ if $b.sewer }}yes{{ else }}no{{ end }} · up to {{ $b.max_occupancy }} guests</p>
+</div>
+
+{{ with $s.seeded_credit }}
+  <div class="callout is-seeded">
+    <p><b>Not our measurement yet.</b> These figures come from <b>{{ . }}</b>, who
+    measured them first. We replace them with our own once this pad is measured from
+    imagery or someone who stayed here confirms them.</p>
+  </div>
+{{ end }}
+
+<div class="verdict">
+  {{ partial "fact.html" (dict "field" (index $s.fields "pad_length_ft") "label" "Pad length") }}
+  {{ partial "fact.html" (dict "field" (index $s.fields "pad_width_ft") "label" "Pad width") }}
+  {{ partial "fact.html" (dict "field" (index $s.fields "pad_orientation_deg") "label" "Orientation") }}
+  {{ partial "fact.html" (dict "field" (index $s.fields "pad_surface") "label" "Surface") }}
+  {{ partial "fact.html" (dict "field" (index $s.fields "backs_onto") "label" "Backs onto") }}
+  {{ partial "fact.html" (dict "field" (index $s.fields "approach_side") "label" "Back-in side") }}
+</div>
+
+<p class="fallback">
+  {{ if eq $len.state "measured" }}
+    {{ if eq $len.source "seeded" }}
+      Published by {{ $len.credit }}{{ with $len.published }} as “{{ . }}”{{ end }} — not our measurement.
+    {{ else }}
+      Measured from aerial imagery{{ with $s.imagery_vintage }} ({{ . }}){{ end }}.
+    {{ end }}
+  {{ else }}
+    Not measured.
+  {{ end }}
+  Disney lists {{ $loop.category }} at up to {{ $b.pad_length_ft }} × {{ $b.pad_width_ft }} ft —
+  a category maximum, not a measurement of this site.
+</p>
+
+{{ with $s.aerial }}
+<section>
+  <h2>From above</h2>
+  <figure class="aerial">
+    <img src="{{ . }}" width="512" height="512" loading="lazy"
+         alt="Aerial view of the ground around site {{ $s.site_number }}">
+    <figcaption>
+      Orange County 2025 orthoimagery, ~120 ft across. Public record under Florida
+      Statutes ch. 119 — see ADR-0003.
+      {{ if ne $s.number_confidence "verified" }}
+        This crop is centred on an inferred location, so it shows the right ground
+        rather than certainly the right pad.
+      {{ end }}
+    </figcaption>
+  </figure>
+</section>
+{{ end }}
+
+<section>
+  <h2>Evidence</h2>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Field</th><th>Value</th><th>Source</th></tr></thead>
+      <tbody>
+        {{ range $k, $label := (dict "pad_length_ft" "Pad length" "pad_width_ft" "Pad width" "pad_orientation_deg" "Orientation" "pad_surface" "Surface" "backs_onto" "Backs onto" "approach_side" "Back-in side") }}
+          {{ $f := index $s.fields $k }}
+          <tr>
+            <td>{{ $label }}</td>
+            <td class="num">{{ $f.display }}</td>
+            <td>
+              {{ if eq $f.state "measured" }}
+                <span class="tag" data-kind="{{ $f.source }}">{{ $f.source }}</span>
+                {{ if eq $f.source "seeded" }}<span class="credit">{{ $f.credit }}{{ with $f.published }} · published “{{ . }}”{{ end }}</span>{{ end }}
+              {{ else }}
+                <span class="tag">{{ $f.state }}</span>
+              {{ end }}
+            </td>
+          </tr>
+        {{ end }}
+        <tr>
+          <td>Sewer</td><td class="num">{{ if $b.sewer }}Yes{{ else }}No{{ end }}</td>
+          <td><span class="tag" data-kind="disney-category">disney-category</span></td>
+        </tr>
+        <tr>
+          <td>Site number</td><td class="num">{{ $s.site_number }}</td>
+          <td><span class="tag" data-kind="{{ $s.number_confidence }}">{{ $s.number_confidence }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  {{ if eq $s.number_confidence "hypothesis" }}
+    <div class="callout" style="margin-top:1rem">
+      <p><b>This site number is a hypothesis.</b> Loops are documented as numbering
+      sequentially, so this number is expected rather than observed. It becomes
+      <span class="mono">verified</span> when someone photographs the post.</p>
+    </div>
+  {{ end }}
+</section>
+
+{{ with $s.notes }}<section><h2>Notes</h2><p>{{ . }}</p></section>{{ end }}
+
+<section class="photo-wanted">
+  <h2>Have you stayed on {{ $s.site_number }}?</h2>
+  <p>
+    The aerial shows the pad. It can't show the shade at three in the afternoon, whether
+    the picnic table is somewhere useful, how loud the road is, or whether the ground
+    holds water. A photo from someone who stayed here is worth more than anything a
+    satellite can tell you.
+  </p>
+  <p>
+    <a class="cta" href="mailto:photos@example.invalid?subject={{ printf "Photo for site %v (Loop %v)" $s.site_number $loop.loop | urlquery }}&amp;body={{ printf "Site: %v\nLoop: %v %s\nWhen you stayed: \nRig type and length: \nAnything worth knowing: \n\n(Attaching a photo means we can publish it here, credited to you.)\n" $s.site_number $loop.loop $loop.loop_name | urlquery }}">Send a photo of site {{ $s.site_number }}</a>
+  </p>
+  <p class="fallback">
+    Sending a photo grants permission to publish it here with credit. Please only send
+    photos you took yourself — images from other guides can't be used.
+  </p>
+</section>
+
+<section>
+  <h2>Something else wrong?</h2>
+  <p>
+    Corrections and first-hand reports are welcome — if you have stayed on this site, you
+    know things no aerial photograph can show.
+    <a href="mailto:corrections@example.invalid?subject=Site%20{{ $s.site_number }}%20(Loop%20{{ $loop.loop }})">Email about site {{ $s.site_number }}</a>.
+  </p>
+  <p class="fallback">
+    Please describe only sites you have stayed on. Reports copied from another guide
+    can't be used.
+  </p>
+</section>
+{{ end }}
