@@ -2,50 +2,202 @@
 
 A queryable reference for the individual campsites at Disney's Fort Wilderness.
 
-You don't choose your campsite there — you book a category, request a loop, and a cast
-member assigns you a number at check-in. This is the reference for what that number
-actually gets you.
+You don't choose your campsite there — you book a *category*, request a *loop*, and a cast
+member assigns you a *site number* at check-in. Disney publishes five pad dimensions for
+~845 campsites and nothing per site. This fills that gap.
 
 **Every figure is measured from public aerial imagery, comes from Disney's own published
 specs, or is credited to whoever published it first until we verify it ourselves.** Where
-something has not been measured, the page says so.
+something has not been measured, the page says so out loud.
 
-## Build
+---
 
+## Requirements
+
+| | Version used | Why | Install |
+|---|---|---|---|
+| **Hugo** (extended) | 0.164 | Builds the site. Needs ≥ 0.126 for Content Adapters. | `brew install hugo` |
+| **Python** | 3.9+ | The whole data pipeline. | preinstalled on macOS |
+| **PyYAML** | any | The only Python dependency. | `pip3 install pyyaml` |
+| **QGIS** | 4.2 | Digitizing pads from aerial imagery. Only needed when measuring. | `brew install --cask qgis` |
+
+There is no `node_modules`, no build toolchain, and no database. The pipeline is stdlib
+Python plus PyYAML; the geometry maths is hand-rolled precisely so this still runs in ten
+years.
+
+---
+
+## Build and run
+
+```bash
+./build.sh          # validate -> resolve -> render.  Output in public/
+hugo server         # live preview on http://localhost:1313
 ```
-./build.sh          # validate -> resolve -> render, output in public/
-hugo server         # live preview on :1313
+
+`build.sh` refuses to run while `hugo server` is live — `--cleanDestinationDir` deletes
+`public/` out from under the server and leaves it serving 404s.
+
+**Deploy is a file copy.** No runtime on the server:
+
+```bash
+rsync -a --delete public/ user@server:/var/www/fortmouse/
 ```
 
-Deploy is a copy: `rsync -a --delete public/ user@server:/var/www/fortmouse/`
+---
 
 ## Layout
 
 ```
-data/loops/      machine-owned, written by pipeline/derive.py     (ADR-0002)
-data/seeds/      human-owned attributed seed measurements         (ADR-0004)
-data/sites/      human-owned notes — the irreplaceable half
-data/reference/  OSM + county geometry
-data/resolved/   generated; the only thing Hugo reads
-pipeline/        Python: measurement, validation, maps, imagery
-layouts/         Hugo templates
+data/
+  loops/       MACHINE-OWNED.  Written by derive.py. Safe to delete and regenerate.
+  seeds/       HUMAN-OWNED.    Attributed third-party measurements.
+  sites/       HUMAN-OWNED.    Your notes. The irreplaceable half of the repo.
+  reference/   Fetched OSM + Orange County geometry. Committed; slow to refetch.
+  resolved/    GENERATED. The only thing Hugo reads. Gitignored.
+
+pipeline/      Python. Measurement, validation, maps, imagery.
+layouts/       Hugo templates.
+content/       Two Content Adapters that generate 845 site pages + 21 loop pages.
+static/        CSS, plus generated maps and aerials (gitignored).
+docs/adr/      Decisions and why.
+docs/research/ What was found before building.
 ```
 
-## Pipeline
+**Why data is split three ways:** derived fields get regenerated wholesale every time the
+measurement method improves; your notes are written once, by hand, and are irreplaceable.
+Keeping them in separate files makes data loss impossible rather than merely unlikely.
+See [ADR-0002](docs/adr/0002-machine-and-human-data-are-separate-files.md).
+
+---
+
+## How to update things
+
+### Change a measurement
+
+Measurements are never edited by hand. Re-digitize and re-derive:
+
+```bash
+python3 pipeline/derive.py 1200 work/loop-1200-pads.geojson
+./build.sh
+```
+
+`derive.py` refuses to overwrite a loop with an empty roster, so a bad export can't wipe
+your work.
+
+### Add a note about a site
+
+Notes are yours and the pipeline never touches them. Create `data/sites/1204.md`:
+
+```markdown
+---
+site_number: 1204
+---
+Backs onto the canal. The picnic table is on the wrong side of the pad — you eat
+looking at your own rig. Bathhouse is a two-minute walk, but the path is unlit.
+```
+
+### Seed measurements from a published source
+
+Facts aren't copyrightable, but attribution is not optional. Tab-separated, one site
+per line:
+
+```
+site    width   length
+1204    11-12   52
+1205    17-19   75
+```
+
+```bash
+python3 pipeline/seed_measurements.py 1200 work/wp-1200.tsv \
+  --credit "The Wilderness Princess" --url https://example.com/source
+```
+
+Seeded values render **amber and credited**, and are replaced automatically the moment
+your own measurement exists. See [ADR-0004](docs/adr/0004-seed-then-verify-sourcing.md).
+
+### Mark a pad you genuinely cannot see
+
+Three absent states, and they mean different things:
+
+| Value | Meaning |
+|---|---|
+| `unmeasured` | Nobody has looked yet |
+| `occluded` | Looked in every imagery vintage; a rig or canopy covers it. Only resolves on foot |
+| `unknown` | No source we have can answer it |
+
+### Add a loop, or start over on one
+
+```bash
+python3 pipeline/bootstrap_loops.py            # leaves existing files alone
+python3 pipeline/bootstrap_loops.py --force    # rebuilds all 21 from public records
+```
+
+### Regenerate the maps and imagery
+
+```bash
+python3 pipeline/loop_context.py       # cache each loop's OSM surroundings (slow, network)
+python3 pipeline/loop_maps.py          # redraw all 21 campground maps + card thumbnails
+python3 pipeline/thumbnails.py 1200    # per-site aerials for one loop
+python3 pipeline/thumbnails.py --loops # one aerial per loop
+```
+
+### Change the look
+
+All colour lives in `static/css/site.css` as tokens on `:root`, with a dark variant. The
+campground maps read the same tokens (`--map-*`), so the maps follow the site theme
+automatically — but **regenerate them after a token change**, since the SVG is written at
+build time:
+
+```bash
+python3 pipeline/loop_maps.py
+```
+
+### Check everything is sane
+
+```bash
+python3 pipeline/validate.py         # schema + bounds on every data file
+cd pipeline && python3 test_geom.py  # prove the measurement maths
+```
+
+`validate.py` enforces real limits — a pad outside 15–90 ft long or 6–30 ft wide is a
+digitizing mistake, not a discovery, and the build stops.
+
+---
+
+## Pipeline reference
 
 | Command | Does |
 |---|---|
-| `pipeline/bootstrap_loops.py` | Create starting files for all 21 loops from public records |
-| `pipeline/qgis_setup.py` | Build the QGIS digitizing project (run inside QGIS) |
-| `pipeline/derive.py <loop> <pads.geojson>` | Digitized pads -> measurements |
-| `pipeline/seed_measurements.py` | Ingest attributed third-party figures |
-| `pipeline/loop_context.py` | Cache each loop's OSM surroundings |
-| `pipeline/loop_maps.py` | Draw the campground maps |
-| `pipeline/thumbnails.py [--loops]` | Cut aerials from county orthoimagery |
-| `pipeline/validate.py` | Schema + sanity checks |
-| `pipeline/test_geom.py` | Prove the measurement maths |
+| `bootstrap_loops.py [--force]` | Create starting files for all 21 loops from county + OSM records |
+| `qgis_setup.py` | Build the QGIS digitizing project. Run *inside* QGIS; set `LOOP` at the top |
+| `derive.py <loop> <pads.geojson> [--demo]` | Digitized pads → measurements, ordered along the loop road |
+| `seed_measurements.py <loop> <tsv> --credit …` | Ingest attributed third-party figures |
+| `infer_positions.py [loop …]` | Provisional site positions so maps aren't blank. **A scaffold, never data** |
+| `loop_context.py [loop …]` | Cache each loop's OSM woods, water, trails, comfort stations |
+| `loop_maps.py` | Draw all 21 campground maps and card thumbnails |
+| `thumbnails.py [loop] [--loops]` | Cut aerials from county orthoimagery |
+| `cc_images.py` | Fetch the freely-licensed decoration images and record attribution |
+| `build_data.py` | Validate, merge seeds, resolve every field, write `data/resolved/` |
+| `validate.py` | Schema and sanity checks |
+| `test_geom.py` | Prove the oriented-bounding-box maths against known pads |
+| `demo.py` | Synthetic measurements for previewing the layout. Stamps `status: demo` |
 
-Start with `pipeline/README.md` for the digitizing workflow.
+Start with [`pipeline/README.md`](pipeline/README.md) for the digitizing workflow.
+
+---
+
+## The rules that are structural, not editorial
+
+1. **Absent states are visible.** A filter that silently drops unmeasured sites gives a
+   reader worse information than a blog post, with more authority.
+2. **Every value carries its source.** `aerial`, `observed`, `reported`, `county-record`,
+   `disney-category`, `seeded`.
+3. **Category maxima are never presented as measurements.** Disney's "up to 60 × 18 ft" is
+   a ceiling for a category, not a fact about your site.
+4. **A photo on a site page is first-party.** County aerials, our own, or a guest's. Never
+   another guide's — a measurement is a fact, a photograph is a creative work.
+5. **Provisional positions never become data.** `inferred_centroid` is never `centroid`,
+   so a scaffold can't produce a measurement or an aerial thumbnail.
 
 ## Decisions
 
@@ -54,5 +206,7 @@ Start with `pipeline/README.md` for the digitizing workflow.
 - [ADR-0003](docs/adr/0003-imagery-source-and-legal-basis.md) — imagery source and legal basis
 - [ADR-0004](docs/adr/0004-seed-then-verify-sourcing.md) — seed, attribute, verify, replace
 
+---
+
 Unofficial and unaffiliated. Not authorized by, endorsed by, or connected with
-The Walt Disney Company.
+The Walt Disney Company. Resort facts are Disney's published information, cited and linked.

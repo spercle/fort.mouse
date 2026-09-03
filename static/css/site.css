@@ -713,3 +713,90 @@ figure.aerial-loop figcaption { max-width: none; }
   margin-top: .2rem;
   margin-left: 1.1em;
 }
+
+/* ---------- hero treeline ---------- */
+
+.hero { position: relative; padding-bottom: 3.5rem; }
+
+.treeline {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 100vw;
+  height: 68px;
+  display: block;
+}
+.pine { fill: var(--map-wood); }
+.pine-floor { fill: var(--map-wood); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pine,
+  :root:not([data-theme="light"]) .pine-floor { fill: #1c2a1a; }
+}
+
+/* ---------- about Fort Wilderness ---------- */
+
+.about { padding-top: 1rem; }
+
+.disney-quote {
+  margin: 1.5rem 0 1rem;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--bark);
+  background: var(--surface);
+}
+.disney-quote p {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-style: italic;
+  margin: 0 0 .5rem;
+  color: var(--ink);
+}
+.disney-quote cite {
+  font-family: var(--mono);
+  font-size: .7rem;
+  font-style: normal;
+  color: var(--muted);
+}
+
+/* ---------- campfire ---------- */
+
+.campfire {
+  position: fixed;
+  right: 1.4rem;
+  bottom: 1.2rem;
+  width: 76px;
+  height: 76px;
+  pointer-events: none;
+  z-index: 5;
+  opacity: .92;
+}
+.campfire svg { width: 100%; height: 100%; display: block; }
+
+.fire-glow { fill: var(--accent); opacity: .13; }
+.logs rect { fill: var(--bark); }
+.flame { transform-origin: 32px 46px; }
+.flame-a { fill: var(--accent); opacity: .85; }
+.flame-b { fill: #e8913a; }
+.flame-c { fill: #f6d27a; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .flame-a { animation: flicker 2.3s ease-in-out infinite; }
+  .flame-b { animation: flicker 1.7s ease-in-out infinite reverse; }
+  .flame-c { animation: flicker 1.1s ease-in-out infinite; }
+  .fire-glow { animation: embers 3.1s ease-in-out infinite; }
+}
+
+@keyframes flicker {
+  0%, 100% { transform: scaleY(1)    scaleX(1);    opacity: .9; }
+  35%      { transform: scaleY(1.09) scaleX(.94);  opacity: 1;  }
+  70%      { transform: scaleY(.95)  scaleX(1.05); opacity: .82; }
+}
+@keyframes embers {
+  0%, 100% { opacity: .11; }
+  50%      { opacity: .2; }
+}
+
+@media (max-width: 640px) {
+  .campfire { width: 52px; height: 52px; right: .7rem; bottom: .7rem; }
+}

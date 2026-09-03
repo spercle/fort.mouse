@@ -10,7 +10,7 @@
   {{ $seeded = add $seeded .seeded_count }}
 {{ end }}
 
-<section>
+<section class="hero">
   <p class="eyebrow">Disney's Fort Wilderness Resort &amp; Campground</p>
   <h1>Measured, not repeated.</h1>
   <p class="lede">
@@ -22,6 +22,47 @@
     Every figure is measured from public aerial imagery, comes from Disney's own published
     specs, or is credited to whoever published it first until we verify it ourselves.
     Where something hasn't been measured, the page says so rather than quietly leaving it out.
+  </p>
+  {{ partial "treeline.html" . }}
+</section>
+
+<section class="about">
+  <h2>About Fort Wilderness</h2>
+  <p>
+    Fort Wilderness sits on <strong>750 acres of pine and cypress forest</strong> in the
+    Magic Kingdom resort area — Disney's only campground, and the only Walt Disney World
+    resort where you bring your own roof. Deer, rabbits, ducks and armadillos live on the
+    property. There are no cars to Magic Kingdom: you get there by
+    <strong>boat</strong>, and everywhere else by <strong>bus</strong>.
+  </p>
+
+  <div class="tw">
+    <table>
+      <tbody>
+        <tr><td>Campsites</td><td>~845 across 21 loops, in five categories</td></tr>
+        <tr><td>Standard on every site</td><td>Water, electric, cable television, picnic table, charcoal grill</td></tr>
+        <tr><td>Sewer</td><td>All categories except Tent / Pop-Up</td></tr>
+        <tr><td>Maximum occupancy</td><td>8 guests, for arrivals from 1 January 2026</td></tr>
+        <tr><td>Rigs</td><td>Tents through 45&nbsp;ft-plus motorhomes, depending on category</td></tr>
+        <tr><td>Swimming</td><td>Meadow Swimmin' Pool with a corkscrew waterslide, and the quieter Wilderness Swimmin' Pool</td></tr>
+        <tr><td>Also on property</td><td>Archery, horseback riding, canoeing, woodland trails, golf cart rental, and an off-leash dog park</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <blockquote class="disney-quote">
+    <p>&ldquo;Camp amid the magic of the great outdoors.&rdquo;</p>
+    <cite>
+      Disney's own description of the resort —
+      <a href="https://disneyworld.disney.go.com/resorts/campsites-at-fort-wilderness-resort/"
+         rel="nofollow">disneyworld.disney.go.com</a>
+    </cite>
+  </blockquote>
+
+  <p class="fallback">
+    Resort facts above are Disney's published information, linked so you can check them.
+    Everything on a <em>site</em> page is measured or attributed separately — Disney
+    publishes nothing about individual campsites, which is the reason this exists.
   </p>
 </section>
 
@@ -71,4 +112,5 @@
   {{ end }}{{ end }}
 </section>
 {{ end }}
+{{ partial "campfire.html" . }}
 {{ end }}

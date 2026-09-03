@@ -1,0 +1,16 @@
+{{/* A small fire in the corner. Flicker is decorative, so it stops entirely for
+     anyone who has asked for reduced motion. */}}
+<div class="campfire" aria-hidden="true" title="">
+  <svg viewBox="0 0 64 64">
+    <ellipse class="fire-glow" cx="32" cy="46" rx="24" ry="9"/>
+    <g class="flames">
+      <path class="flame flame-a" d="M32 12c7 9 11 14 11 22a11 11 0 0 1-22 0c0-8 4-13 11-22z"/>
+      <path class="flame flame-b" d="M32 22c4 5 6 8 6 13a6 6 0 0 1-12 0c0-5 2-8 6-13z"/>
+      <path class="flame flame-c" d="M32 30c2 3 3 4 3 7a3 3 0 0 1-6 0c0-3 1-4 3-7z"/>
+    </g>
+    <g class="logs">
+      <rect x="10" y="44" width="44" height="7" rx="3.5" transform="rotate(-11 32 47)"/>
+      <rect x="10" y="44" width="44" height="7" rx="3.5" transform="rotate(11 32 47)"/>
+    </g>
+  </svg>
+</div>

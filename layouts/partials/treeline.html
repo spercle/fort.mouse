@@ -1,0 +1,15 @@
+{{/* A pine treeline, drawn rather than photographed, so it matches the maps and
+     inherits the theme. Trees are distributed across the full width rather than
+     accumulated, or the band stops short of the right edge. */}}
+{{ $heights := slice 62 44 78 51 70 38 84 56 66 47 74 41 88 53 60 45 80 49 72 43 68 58 76 40 64 52 82 46 }}
+{{ $n := len $heights }}
+{{ $step := div 1200.0 $n }}
+<svg class="treeline" viewBox="0 0 1200 90" preserveAspectRatio="none" aria-hidden="true">
+  {{ range $i, $h := $heights }}
+    {{ $cx := mul (add (float $i) 0.5) $step }}
+    {{ $half := mul $step 0.82 }}
+    <path class="pine"
+          d="M {{ sub $cx $half }} 90 L {{ $cx }} {{ sub 90 $h }} L {{ add $cx $half }} 90 Z"/>
+  {{ end }}
+  <rect class="pine-floor" x="0" y="83" width="1200" height="7"/>
+</svg>
