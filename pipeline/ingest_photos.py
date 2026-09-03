@@ -136,6 +136,47 @@ def read_exif(path):
     return out
 
 
+def clear_orientation(path):
+    """Set the EXIF orientation tag to 1, in place.
+
+    sips -r rotates the pixels but leaves the tag alone, so a browser — which
+    honours the tag — rotates the already-rotated image a second time and shows it
+    upside down. Viewers that ignore EXIF show it correctly, which is exactly how
+    this got shipped once.
+    """
+    data = bytearray(open(path, "rb").read())
+    if data[:2] != b"\xff\xd8":
+        return False
+    i, base = 2, None
+    while i < len(data) - 4:
+        if data[i] != 0xFF:
+            break
+        marker, size = data[i + 1], struct.unpack(">H", bytes(data[i + 2:i + 4]))[0]
+        if marker == 0xE1 and data[i + 4:i + 10] == b"Exif\x00\x00":
+            base = i + 10
+            break
+        i += 2 + size
+    if base is None:
+        return False
+
+    endian = "<" if data[base:base + 2] == b"II" else ">"
+    ifd0 = struct.unpack(endian + "I", bytes(data[base + 4:base + 8]))[0]
+    off = base + ifd0
+    if off + 2 > len(data):
+        return False
+    n = struct.unpack(endian + "H", bytes(data[off:off + 2]))[0]
+    for k in range(n):
+        e = off + 2 + k * 12
+        if e + 12 > len(data):
+            break
+        tag = struct.unpack(endian + "H", bytes(data[e:e + 2]))[0]
+        if tag == 0x0112:
+            data[e + 8:e + 10] = struct.pack(endian + "H", 1)
+            open(path, "wb").write(bytes(data))
+            return True
+    return False
+
+
 # --------------------------------------------------------------------------
 
 def known_sites():
@@ -241,6 +282,13 @@ def convert(src, dest):
     out_w, out_h = dims(dest)
     if max(out_w, out_h) > MAX_EDGE or out_w < 400:
         return False, f"unexpected output size {out_w}x{out_h} from {src_w}x{src_h}"
+
+    # The rotation is in the pixels now, so the tag must stop claiming it is needed.
+    if ori in (3, 6, 8):
+        clear_orientation(dest)
+        still = read_exif(dest).get("orientation")
+        if still not in (None, 1):
+            return False, f"orientation tag still {still} after rotating"
     return True, None
 
 
