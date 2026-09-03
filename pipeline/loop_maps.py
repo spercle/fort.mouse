@@ -77,6 +77,21 @@ STYLE = """
             fill: var(--map-ink2, #6f6e5c); }
   .bar    { stroke: var(--map-ink, #3b3a2f); stroke-width: 2; fill: none; }
   .rose   { fill: var(--map-ink, #3b3a2f); }
+  .base-veil  { fill: #10140e; opacity: .18; }
+  .band       { fill: #12160f; opacity: .74; }
+  .mark-i     { fill: rgba(240,232,208,.92); stroke: #b8501c; stroke-width: 2; }
+
+  /* Over a photograph the furniture is light regardless of the page theme.
+     These must be class rules — a fill="" attribute loses to the class above. */
+  .photo .ttl, .photo .sub, .photo .lbl, .photo .key,
+  .photo .rd-l, .photo .rose { fill: #f1ece0; }
+  .photo .bar { stroke: #f1ece0; }
+  .photo .num { fill: #2a2417; }
+  .photo .mark { fill: #f1ece0; }
+  .road-guide { fill: none; stroke: var(--accent, #b8461c); stroke-width: 2.5;
+                stroke-dasharray: 9 7; opacity: .8; stroke-linecap: round; }
+  .on-photo .num, .on-photo .lbl { paint-order: stroke;
+                stroke: rgba(0,0,0,.6); stroke-width: 3px; }
 """
 
 
@@ -232,7 +247,9 @@ def draw(loop_no, name, category, road_coords, segments):
     total_ft = sum(math.dist(road_ft[i], road_ft[i + 1])
                    for i in range(len(road_ft) - 1))
 
-    svg = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
+    photo_cls = ' class="photo"' if os.path.exists(
+        os.path.join(ROOT, "static", "loop-base", f"{loop_no}.jpg")) else ''
+    svg = [f'<svg xmlns="http://www.w3.org/2000/svg"{photo_cls} viewBox="0 0 {W} {H}" '
            f'role="img" aria-label="Campground map of Loop {loop_no}, {name}">',
            f'<style>{STYLE}</style>',
            f'<clipPath id="clip{loop_no}">'
@@ -240,20 +257,29 @@ def draw(loop_no, name, category, road_coords, segments):
            f'<rect class="bg" width="{W}" height="{H}"/>',
            f'<g clip-path="url(#clip{loop_no})">']
 
+    # Cut to exactly this frame's bounds by loop_basemap.py, so the photograph and
+    # the drawing share one coordinate system and every pad sits on real ground.
+    base = os.path.join(ROOT, "static", "loop-base", f"{loop_no}.jpg")
+    has_base = os.path.exists(base)
+    if has_base:
+        svg.append(f'<image href="/loop-base/{loop_no}.jpg" x="0" y="0" '
+                   f'width="{W}" height="{H}" preserveAspectRatio="none"/>')
+        svg.append(f'<rect class="base-veil" width="{W}" height="{H}"/>')
+
     def by(kind):
         return [f for f in ctx if f["properties"]["kind"] == kind]
 
-    for f in by("wood"):
+    for f in ([] if has_base else by("wood")):
         svg.append(f'<path class="wood" d="{path_d(frame(f["_ft"]), True)}"/>')
-    for f in by("water"):
+    for f in ([] if has_base else by("water")):
         poly = f["geometry"]["type"] == "Polygon"
         svg.append(f'<path class="{"water" if poly else "canal"}" '
                    f'd="{path_d(frame(f["_ft"]), poly)}"/>')
-    for f in by("trail"):
+    for f in ([] if has_base else by("trail")):
         svg.append(f'<path class="trail" d="{path_d(frame(f["_ft"]))}"/>')
-    for f in by("road"):
+    for f in ([] if has_base else by("road")):
         svg.append(f'<path class="other" d="{path_d(frame(f["_ft"]))}"/>')
-    for f in by("building"):
+    for f in ([] if has_base else by("building")):
         px = frame(f["_ft"])
         svg.append(f'<path class="bldg" d="{path_d(px, True)}"/>')
         # A named cabin inside a campsite loop explains a gap in the numbering.
@@ -276,8 +302,11 @@ def draw(loop_no, name, category, road_coords, segments):
             svg.append(f'<text class="rd-l" x="{mx:.0f}" y="{my-7:.0f}">{nm}</text>')
 
     # the loop itself: casing then fill, so it reads as a ribbon
-    svg.append(f'<path class="road-e" d="{path_d(road_px)}"/>')
-    svg.append(f'<path class="road" d="{path_d(road_px)}"/>')
+    if has_base:
+        svg.append(f'<path class="road-guide" d="{path_d(road_px)}"/>')
+    else:
+        svg.append(f'<path class="road-e" d="{path_d(road_px)}"/>')
+        svg.append(f'<path class="road" d="{path_d(road_px)}"/>')
 
     # pads, squared to the nearest stretch of road, each with a driveway stub
     placed_nums = []
@@ -289,11 +318,14 @@ def draw(loop_no, name, category, road_coords, segments):
         (px, py), = frame([p["ft"]])
         (rx, ry), = frame([road_mid])
         cls = {"measured": "pad", "known": "pad-k", "provisional": "pad-i"}[p["state"]]
-        svg.append(f'<line class="stub" x1="{rx:.1f}" y1="{ry:.1f}" '
-                   f'x2="{px:.1f}" y2="{py:.1f}"/>')
-        svg.append(f'<g transform="translate({px:.1f} {py:.1f}) rotate({rot:.1f})">'
-                   f'<rect class="{cls}" x="{-Wd/2:.1f}" y="{-L/2:.1f}" '
-                   f'width="{Wd:.1f}" height="{L:.1f}" rx="1.5"/></g>')
+        if has_base and p["state"] == "provisional":
+            svg.append(f'<circle class="mark-i" cx="{px:.1f}" cy="{py:.1f}" r="11"/>')
+        else:
+            svg.append(f'<line class="stub" x1="{rx:.1f}" y1="{ry:.1f}" '
+                       f'x2="{px:.1f}" y2="{py:.1f}"/>')
+            svg.append(f'<g transform="translate({px:.1f} {py:.1f}) rotate({rot:.1f})">'
+                       f'<rect class="{cls}" x="{-Wd/2:.1f}" y="{-L/2:.1f}" '
+                       f'width="{Wd:.1f}" height="{L:.1f}" rx="1.5"/></g>')
         if all(abs(px - ox) > 22 or abs(py - oy) > 11 for ox, oy in placed_nums):
             placed_nums.append((px, py))
             svg.append(f'<text class="num" x="{px:.1f}" y="{py+3.3:.1f}">'
@@ -321,6 +353,9 @@ def draw(loop_no, name, category, road_coords, segments):
     svg.append(f'<text class="cs-l" x="{ex:.1f}" y="{ey-11:.1f}">ENTRANCE</text>')
     svg.append('</g>')
 
+    if has_base:
+        svg.append(f'<rect class="band" x="9" y="9" width="{W-18}" height="{PAD+4}"/>')
+        svg.append(f'<rect class="band" x="9" y="{H-52}" width="{W-18}" height="43"/>')
     svg.append(f'<rect class="frame" x="9" y="9" width="{W-18}" height="{H-18}"/>')
     svg.append(f'<text class="ttl" x="{PAD-34}" y="{PAD-20}">Loop {loop_no}</text>')
     svg.append(f'<text class="sub" x="{PAD-34}" y="{PAD-2}">{name} · {category}</text>')
@@ -338,7 +373,7 @@ def draw(loop_no, name, category, road_coords, segments):
         if candidate * frame.scale <= (W - 2 * PAD) * 0.3:
             feet = candidate
             break
-    bx, by = PAD - 34, H - 34
+    bx, by = PAD - 34, H - 30
     px_len = feet * frame.scale
     svg.append(f'<path class="bar" d="M {bx} {by-5} L {bx} {by} L {bx+px_len:.1f} {by} '
                f'L {bx+px_len:.1f} {by-5}"/>')

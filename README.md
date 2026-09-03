@@ -258,6 +258,7 @@ digitizing mistake, not a discovery, and the build stops.
 | `demo.py` | Synthetic measurements for previewing the layout. Stamps `status: demo` |
 | `icons.py` | Rasterise the favicon and mobile icons from scratch — no image library needed |
 | `loop_signs.py` | Draw each loop's entrance sign, with its site-number range |
+| `loop_basemap.py <loop>` | Cut an aerial that lines up exactly with that loop's map frame |
 
 Start with [`pipeline/README.md`](pipeline/README.md) for the digitizing workflow.
 
