@@ -31,7 +31,7 @@
   <div class="credit-grid">
     {{ range .decoration }}
       <figure class="credit-card">
-        <img src="{{ .file }}" alt="{{ .title }}" loading="lazy">
+        <img src="{{ strings.TrimPrefix "/" .file | relURL }}" alt="{{ .title }}" loading="lazy">
         <figcaption>
           <b>{{ .title }}</b><br>
           by {{ .creator }} · <a href="{{ .licence_url }}" rel="license">CC {{ .licence }}</a><br>

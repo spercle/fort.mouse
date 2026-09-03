@@ -73,7 +73,13 @@
 
   <div class="loop-map" data-view="drawn">{{ readFile $map | safeHTML }}</div>
   {{ if fileExists $aerial }}
-    <div class="loop-map" data-view="aerial" hidden>{{ readFile $aerial | safeHTML }}</div>
+    {{/* The SVG is written by Python, so relURL never saw its <image href>. Under
+         a subpath an absolute "/loop-base/..." resolves off the site root and 404s. */}}
+    {{/* Called directly, not piped: Hugo appends a piped value as the LAST
+         argument, so `readFile | replace A B` means replace(A, B, file) and
+         silently returns A — which replaced the whole map with "/loop-base/". */}}
+    {{ $svg := replace (readFile $aerial) "/loop-base/" (relURL "loop-base/") }}
+    <div class="loop-map" data-view="aerial" hidden>{{ $svg | safeHTML }}</div>
   {{ end }}
 
   <p class="fallback" data-cap="drawn">

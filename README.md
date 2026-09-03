@@ -62,6 +62,19 @@ which some org and private repos do not.
 The site lands at **https://spercle.github.io/fort.mouse/** — a subpath, which is why
 every internal URL goes through Hugo's `relURL`.
 
+> **Two subpath traps, both of which shipped broken once.** `build.sh` now runs
+> `pipeline/check_links.py` to catch them.
+>
+> **1. Generated SVG bypasses `relURL` entirely.** The pipeline writes
+> `<image href="/loop-base/100.jpg">` into the map, Hugo inlines it verbatim, and it
+> resolves off the site root in production while working perfectly on a root-served
+> dev server. The template rewrites it now.
+>
+> **2. Hugo appends a piped value as the LAST argument.** So
+> `readFile $x | replace "a" "b"` means `replace("a", "b", <file>)` and silently
+> returns `"a"` — which replaced an entire map with the string `/loop-base/`. Call
+> `replace` directly.
+>
 > **Careful with `relURL`:** Hugo treats a leading `/` as *already relative to the host
 > root* and will skip the baseURL subpath entirely. `{{ "/css/x.css" | relURL }}` gives
 > `/css/x.css`; `{{ "css/x.css" | relURL }}` gives `/fort.mouse/css/x.css`. Always pass
@@ -307,6 +320,7 @@ digitizing mistake, not a discovery, and the build stops.
 | `ingest_photos.py [--apply]` | File photos from `incoming/` against sites, by filename or GPS |
 | `test_exif.py` | Prove the hand-rolled EXIF reader against a synthesised photo |
 | `verify_site.py <site> --photo … --note …` | Record a site number confirmed from primary evidence |
+| `check_links.py` | Fail the build on a reference that will 404 under the subpath |
 | `loop_signs.py` | Draw each loop's entrance sign, with its site-number range |
 | `loop_basemap.py <loop>` | Cut an aerial that lines up exactly with that loop's map frame |
 
