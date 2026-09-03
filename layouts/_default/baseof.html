@@ -25,6 +25,18 @@
   <header class="masthead">
     <div class="wrap masthead-inner">
       <a class="brand" href="{{ "" | relURL }}">fort<span>.</span>mouse</a>
+
+      {{/* The only link used to be the logo — every index page was reachable
+           by typing a URL and nothing else. */}}
+      <nav class="sitenav">
+        <a href="{{ "loop/" | relURL }}"
+           {{ if eq .Section "loop" }}aria-current="page"{{ end }}>Loops</a>
+        <a href="{{ "site/" | relURL }}"
+           {{ if eq .Section "site" }}aria-current="page"{{ end }}>Sites</a>
+        {{/* Pages from the content adapters have no .File, so compare permalinks. */}}
+        <a href="{{ "credits/" | relURL }}"
+           {{ if eq .RelPermalink (relURL "credits/") }}aria-current="page"{{ end }}>Credits</a>
+      </nav>
       <form class="lookup" id="lookup" role="search">
         <label class="fact-k" for="site-input">Site</label>
         <input id="site-input" name="site" type="text" inputmode="numeric"
@@ -38,6 +50,12 @@
   <main class="wrap">{{ block "main" . }}{{ end }}</main>
 
   <footer class="wrap">
+    <nav>
+      <a href="{{ "" | relURL }}">Home</a>
+      <a href="{{ "loop/" | relURL }}">All loops</a>
+      <a href="{{ "site/" | relURL }}">All sites</a>
+      <a href="{{ "credits/" | relURL }}">Credits and sources</a>
+    </nav>
     Unofficial and unaffiliated. Not authorized by, endorsed by, or connected with
     The Walt Disney Company.<br>
     Measurements are our own from public aerial imagery, or attributed to whoever
