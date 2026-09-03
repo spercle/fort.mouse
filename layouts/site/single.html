@@ -32,6 +32,15 @@
   </p>
 </div>
 
+{{ with $s.observed }}
+  <div class="callout is-verified">
+    <p><b>Measured on the ground.</b> These figures were taken at the site with a tape
+    measure{{ with .date }} on {{ . }}{{ end }} — not scaled off a photograph and not
+    copied from anyone else. It is the strongest kind of measurement this project has.
+    {{ with .note }}{{ . }}{{ end }}</p>
+  </div>
+{{ end }}
+
 {{ with $s.seeded_credit }}
   <div class="callout is-seeded">
     <p><b>Not our measurement yet.</b> These figures come from <b>{{ . }}</b>, who
@@ -53,6 +62,8 @@
   {{ if eq $len.state "measured" }}
     {{ if eq $len.source "seeded" }}
       Published by {{ $len.credit }}{{ with $len.published }} as “{{ . }}”{{ end }} — not our measurement.
+    {{ else if eq $len.source "observed" }}
+      Measured on the ground{{ with $len.date }} on {{ . }}{{ end }}.
     {{ else }}
       Measured from aerial imagery{{ with $s.imagery_vintage }} ({{ . }}){{ end }}.
     {{ end }}
@@ -105,6 +116,7 @@
               {{ if eq $f.state "measured" }}
                 <span class="tag" data-kind="{{ $f.source }}">{{ $f.source }}</span>
                 {{ if eq $f.source "seeded" }}<span class="credit">{{ $f.credit }}{{ with $f.published }} · published “{{ . }}”{{ end }}</span>{{ end }}
+                {{ if eq $f.source "observed" }}<span class="credit">on site{{ with $f.date }} · {{ . }}{{ end }}</span>{{ end }}
               {{ else }}
                 <span class="tag">{{ $f.state }}</span>
               {{ end }}
@@ -192,9 +204,17 @@
 </nav>
 
 <section class="photo-wanted">
-  <h2>Have you stayed on {{ $s.site_number }}?</h2>
+  {{/* Branch on the photographs, not the aerial — this asked for photos of a site
+        that already had them, directly under the ones it was claiming not to have. */}}
+  {{ $has_photos := gt (len $s.photos) 0 }}
+  <h2>{{ if $has_photos }}Know more about {{ $s.site_number }}?{{ else }}Have you stayed on {{ $s.site_number }}?{{ end }}</h2>
   <p>
-    {{ if $s.aerial }}
+    {{ if $has_photos }}
+      {{ len $s.photos }} photograph{{ if gt (len $s.photos) 1 }}s{{ end }} of this site
+      {{ if gt (len $s.photos) 1 }}are{{ else }}is{{ end }} above, and more angles are
+      always welcome — a pad, a hook-up, the view from the door. Nor can a photograph
+      show
+    {{ else if $s.aerial }}
       The aerial shows the pad. It can't show
     {{ else }}
       We don't have a photograph of this site yet — and even an aerial wouldn't show
@@ -204,7 +224,7 @@
     stayed here is worth more than anything a satellite can tell you.
   </p>
   <p>
-    <a class="cta" href="mailto:photos@example.invalid?subject={{ printf "Photo for site %v (Loop %v)" $s.site_number $loop.loop | urlquery }}&amp;body={{ printf "Site: %v\nLoop: %v %s\nWhen you stayed: \nRig type and length: \nAnything worth knowing: \n\n(Attaching a photo means we can publish it here, credited to you.)\n" $s.site_number $loop.loop $loop.loop_name | urlquery }}">Send a photo of site {{ $s.site_number }}</a>
+    <a class="cta" href="mailto:photos@example.invalid?subject={{ printf "Photo for site %v (Loop %v)" $s.site_number $loop.loop | urlquery }}&amp;body={{ printf "Site: %v\nLoop: %v %s\nWhen you stayed: \nRig type and length: \nAnything worth knowing: \n\n(Attaching a photo means we can publish it here, credited to you.)\n" $s.site_number $loop.loop $loop.loop_name | urlquery }}">Send {{ if $has_photos }}another{{ else }}a{{ end }} photo of site {{ $s.site_number }}</a>
   </p>
   <p class="fallback">
     Sending a photo grants permission to publish it here with credit. Please only send

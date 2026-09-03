@@ -1,0 +1,7 @@
+sites:
+- site_number: 101
+  source: observed
+  pad_width_ft: 10.0
+  pad_length_ft: 24.0
+  backs_onto: basketball goal
+  note: Measured on site.

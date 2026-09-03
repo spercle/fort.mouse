@@ -5,13 +5,15 @@
 Reads:
     data/loops/*.yaml    machine-owned, written by derive.py
     data/seeds/*.yaml    human-owned attributed seeds (ADR-0004)
+    data/observed.yaml   human-owned measurements taken on the ground
 Writes:
     data/resolved/*.yaml         one per loop, every field already resolved
     data/resolved/index.json     the client-side site-number lookup
 
-Precedence lives here, not in a template: a measurement of our own always beats a seed,
-a seed always beats an absence. Hugo then renders a value that already knows what it is
-and where it came from.
+Precedence lives here, not in a template. Someone standing on the pad with a tape
+measure beats a photograph taken from 3,000 feet, which beats a figure somebody else
+published, which beats an absence. Hugo then renders a value that already knows what
+it is and where it came from.
 """
 
 import json
@@ -32,6 +34,15 @@ ABSENT = {"unmeasured", "occluded", "unknown"}
 
 PHOTOS = os.path.join(ROOT, "data", "photos.yaml")
 VERIFIED = os.path.join(ROOT, "data", "verified.yaml")
+OBSERVED = os.path.join(ROOT, "data", "observed.yaml")
+
+
+def load_observed():
+    """Measurements taken on the ground. Outranks everything else we have."""
+    if not os.path.exists(OBSERVED):
+        return {}
+    data = yaml.safe_load(open(OBSERVED)) or {}
+    return {o["site_number"]: o for o in data.get("sites") or []}
 
 
 def load_verified():
@@ -102,16 +113,17 @@ def main():
 
     photos = load_photos()
     verified = load_verified()
+    observed = load_observed()
     os.makedirs(OUT, exist_ok=True)
     index = []
-    totals = {"sites": 0, "own": 0, "seeded": 0}
+    totals = {"sites": 0, "own": 0, "seeded": 0, "observed": 0}
 
     for loop_no, loop in sorted(loops.items()):
         seed_file = seeds.get(loop_no, {})
         credit = (seed_file.get("attribution") or {}).get("credit")
         by_number = {s["site_number"]: s for s in seed_file.get("sites", [])}
 
-        out_sites, own, seeded, lengths = [], 0, 0, []
+        out_sites, own, seeded, seen, lengths = [], 0, 0, 0, []
 
         for site in loop["sites"]:
             n = site["site_number"]
@@ -128,10 +140,24 @@ def main():
                             "published": seed.get(key.replace("_ft", "_published")),
                         }
 
+            # Highest precedence: someone was there. This overwrites a measured
+            # aerial value, not just a gap — the tape measure is the better source.
+            obs = observed.get(n)
+            if obs:
+                for key in MEASURES:
+                    if obs.get(key) is not None:
+                        fields[key] = {"state": "measured", "value": obs[key],
+                                       "source": "observed", "date": obs.get("date")}
+
             for key, unit in UNITS.items():
                 f = fields[key]
                 if f["state"] == "measured":
-                    f["display"] = f"{f['value']}{unit}"
+                    v = f["value"]
+                    # 24 ft, not 24.0 ft — a tape measure reading a round number
+                    # should not be dressed up as a decimal.
+                    if isinstance(v, float) and v.is_integer():
+                        v = int(v)
+                    f["display"] = f"{v}{unit}"
             for key in ("pad_surface", "backs_onto", "approach_side"):
                 f = fields[key]
                 if f["state"] == "measured":
@@ -143,6 +169,7 @@ def main():
                     seeded += 1
                 else:
                     own += 1
+                    seen += length["source"] == "observed"
                     lengths.append(length["value"])
 
             # An aerial is only this site's if we know where this site is. A file
@@ -158,6 +185,7 @@ def main():
                 "verified": verified.get(n),
                 "imagery_vintage": site.get("imagery_vintage"),
                 "notes": site.get("notes"),
+                "observed": obs,
                 "photos": photos.get(n) or [],
                 "aerial": aerial if (aerial and os.path.exists(
                     os.path.join(AERIAL, f"{n}.jpg"))) else None,
@@ -184,6 +212,7 @@ def main():
             "site_count": len(out_sites),
             "own_count": own,
             "seeded_count": seeded,
+            "observed_count": seen,
             "median_pad_ft": lengths[len(lengths) // 2] if lengths else None,
             "longest_pad_ft": lengths[-1] if lengths else None,
             "sites": out_sites,
@@ -194,7 +223,9 @@ def main():
         totals["sites"] += len(out_sites)
         totals["own"] += own
         totals["seeded"] += seeded
-        print(f"  loop {loop_no}: {len(out_sites)} sites, {own} ours, {seeded} seeded")
+        totals["observed"] += seen
+        print(f"  loop {loop_no}: {len(out_sites)} sites, {own} ours, {seeded} seeded"
+              + (f", {seen} measured on the ground" if seen else ""))
 
     src = os.path.join(ROOT, "data", "credits.yaml")
     if os.path.exists(src):
@@ -207,6 +238,7 @@ def main():
     json.dump(index, open(os.path.join(assets, "search-index.json"), "w"))
     print(f"\n{totals['sites']} sites across {len(loops)} loop(s) -> data/resolved/")
     print(f"  {totals['own']} measured by us, {totals['seeded']} still seeded")
+    print(f"  {totals['observed']} measured on the ground")
 
 
 if __name__ == "__main__":
