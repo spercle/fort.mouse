@@ -64,7 +64,7 @@ STYLE = """
             fill: var(--accent, #b8461c); text-anchor: middle; }
   .rd-l   { font: 500 9.5px 'IBM Plex Mono', ui-monospace, monospace;
             fill: var(--map-ink2, #6b6a58); }
-  .ttl    { font: 700 27px Archivo, 'Helvetica Neue', sans-serif;
+  .ttl    { font: 800 27px Bitter, Georgia, serif;
             fill: var(--map-ink, #3b3a2f); }
   .sub    { font: 500 12px 'IBM Plex Mono', ui-monospace, monospace;
             fill: var(--map-ink2, #6f6e5c); }

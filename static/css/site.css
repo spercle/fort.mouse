@@ -3,40 +3,47 @@
    and a separate confirming green reserved exclusively for measured values. */
 
 :root {
-  --ground: #f1f3ec;
-  --surface: #f8f9f5;
-  --surface-sunk: #e8ebe0;
-  --ink: #161b16;
-  --ink-2: #3a423a;
-  --muted: #6c756a;
-  --rule: #d5dacd;
-  --rule-strong: #b9c0ae;
-  --accent: #b8461c;
-  --measured: #2e6a4c;
-  --measured-soft: #dde9e1;
-  --absent: #8a7b3f;
-  --absent-soft: #f0ead6;
+  /* Canvas tent, pine shade, cedar post, campfire ember. */
+  --ground: #f2ecdd;
+  --surface: #f8f4e9;
+  --surface-sunk: #e8dfc9;
+  --ink: #1e2418;
+  --ink-2: #3f4634;
+  --muted: #71705c;
+  --rule: #ddd2b8;
+  --rule-strong: #bfae8b;
+  --accent: #b8501c;
+  --measured: #2f6b3f;
+  --measured-soft: #dcead9;
+  --absent: #8a6f2f;
+  --absent-soft: #f0e5c9;
 
-  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --bark: #43301f;
+  --canvas-line: rgba(120, 96, 58, .045);
+
+  --display: "Bitter", Georgia, serif;
   --body: "Source Serif 4", Georgia, "Times New Roman", serif;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --ground: #10130e;
-    --surface: #171b15;
-    --surface-sunk: #1d2219;
-    --ink: #e9ece3;
-    --ink-2: #bcc3b6;
-    --muted: #8a9385;
-    --rule: #2a3026;
-    --rule-strong: #3c4437;
-    --accent: #e9724a;
-    --measured: #74c398;
-    --measured-soft: #17291e;
-    --absent: #cbb968;
-    --absent-soft: #2a2517;
+    --ground: #11150f;
+    --surface: #191e15;
+    --surface-sunk: #22271b;
+    --ink: #ece5d3;
+    --ink-2: #c2bda8;
+    --muted: #8e8b74;
+    --rule: #2c3223;
+    --rule-strong: #464b34;
+    --accent: #e07a41;
+    --measured: #79c38a;
+    --measured-soft: #182a1c;
+    --absent: #d0b566;
+    --absent-soft: #2b2416;
+
+    --bark: #6b533a;
+    --canvas-line: rgba(220, 200, 150, .028);
   }
 }
 
@@ -44,7 +51,10 @@
 
 body {
   margin: 0;
-  background: var(--ground);
+  background-color: var(--ground);
+  background-image:
+    repeating-linear-gradient(90deg, var(--canvas-line) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg,  var(--canvas-line) 0 1px, transparent 1px 3px);
   color: var(--ink);
   font-family: var(--body);
   font-size: 17px;
@@ -60,8 +70,9 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 /* ---------- header ---------- */
 
 .masthead {
-  border-bottom: 1px solid var(--rule-strong);
+  border-bottom: 3px solid var(--bark);
   background: var(--surface);
+  box-shadow: inset 0 -1px 0 var(--rule-strong);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -79,11 +90,18 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .brand {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: -0.015em;
+  font-size: 1.12rem;
+  letter-spacing: 0.01em;
   color: var(--ink);
   text-decoration: none;
+  padding: 0.3rem 0.75rem;
+  border: 2px solid var(--bark);
+  border-radius: 3px;
+  /* routed sign: the lettering sits below the surface */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
 }
+:root:not([data-theme="light"]) .brand { text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
+@media (prefers-color-scheme: light) { .brand { text-shadow: 0 1px 0 rgba(255,255,255,.35); } }
 .brand span { color: var(--accent); }
 
 .lookup { display: flex; gap: 0.4rem; align-items: center; position: relative; }
@@ -127,8 +145,18 @@ h1, h2, h3 {
   text-wrap: balance;
   margin: 0;
 }
-h1 { font-size: clamp(1.9rem, 5vw, 2.8rem); font-weight: 700; line-height: 1.05; }
-h2 { font-size: clamp(1.3rem, 3vw, 1.6rem); font-weight: 600; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.8rem); font-weight: 700; line-height: 1.08;
+     letter-spacing: -0.012em; }
+h2 { font-size: clamp(1.3rem, 3vw, 1.6rem); font-weight: 700; letter-spacing: -0.008em; }
+h2::before {
+  content: "";
+  display: inline-block;
+  width: 0.42em; height: 0.42em;
+  margin-right: 0.5em;
+  vertical-align: 0.08em;
+  background: var(--accent);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);   /* a pine, not an emoji */
+}
 h3 { font-size: 1rem; font-weight: 600; }
 
 p { max-width: 66ch; }
@@ -469,34 +497,34 @@ a.cta:hover { filter: brightness(1.08); }
 /* ---------- campground map palette ---------- */
 
 :root {
-  --map-paper:   #eef0e6;
-  --map-wood:    #d3ddc4;
-  --map-water:   #bcd4dd;
-  --map-water-e: #9dbcc7;
-  --map-bldg:    #cfc7b6;
-  --map-trail:   #b3ad97;
-  --map-road:    #fbfaf4;
-  --map-road-e:  #b6b6a6;
-  --map-pad:     #e6dcc4;
-  --map-pad-e:   #b9a97f;
-  --map-ink:     #3b3a2f;
-  --map-ink2:    #6f6e5c;
+  --map-paper:   #f2ecdd;
+  --map-wood:    #cbd8b4;
+  --map-water:   #b6cfd8;
+  --map-water-e: #92b4c0;
+  --map-bldg:    #cbb99c;
+  --map-trail:   #b09a74;
+  --map-road:    #fbf6ea;
+  --map-road-e:  #c3b193;
+  --map-pad:     #e8d7ae;
+  --map-pad-e:   #a98f5c;
+  --map-ink:     #33301f;
+  --map-ink2:    #6d6650;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --map-paper:   #191d16;
-    --map-wood:    #223022;
-    --map-water:   #1d3742;
-    --map-water-e: #2b4c59;
-    --map-bldg:    #37342b;
-    --map-trail:   #4a4638;
-    --map-road:    #333730;
-    --map-road-e:  #464b42;
-    --map-pad:     #3b3527;
-    --map-pad-e:   #7d6f4c;
-    --map-ink:     #dde0d4;
-    --map-ink2:    #9a9c8a;
+    --map-paper:   #171b12;
+    --map-wood:    #1f2c1c;
+    --map-water:   #1b3540;
+    --map-water-e: #2a4a56;
+    --map-bldg:    #3a3226;
+    --map-trail:   #4e4331;
+    --map-road:    #34352b;
+    --map-road-e:  #4b4736;
+    --map-pad:     #3d3524;
+    --map-pad-e:   #8a7345;
+    --map-ink:     #e4dcc6;
+    --map-ink2:    #9c9479;
   }
 }
 
