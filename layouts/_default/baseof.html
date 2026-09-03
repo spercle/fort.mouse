@@ -65,6 +65,16 @@
 
   <main class="wrap">{{ block "main" . }}{{ end }}</main>
 
+  {{/* Lightbox. Vanilla, because a library for this would be more code than the
+       feature. Built only if the page actually has photographs. */}}
+  <dialog class="lightbox" id="lightbox" aria-label="Photograph">
+    <button class="lb-close" type="button" data-lb="close" aria-label="Close">&times;</button>
+    <button class="lb-nav lb-prev" type="button" data-lb="prev" aria-label="Previous photograph">&#8249;</button>
+    <img id="lb-img" alt="">
+    <button class="lb-nav lb-next" type="button" data-lb="next" aria-label="Next photograph">&#8250;</button>
+    <p class="lb-cap" id="lb-cap"></p>
+  </dialog>
+
   <footer class="wrap">
     <nav>
       <a href="{{ "" | relURL }}">Home</a>
@@ -104,6 +114,68 @@
     })();
 
     {{ $idx := resources.Get "search-index.json" | fingerprint "sha256" }}
+    (function () {
+      var shots = [].slice.call(
+        document.querySelectorAll(".photo img, figure.aerial img"));
+      if (!shots.length) return;
+
+      var dlg = document.getElementById("lightbox");
+      var img = document.getElementById("lb-img");
+      var cap = document.getElementById("lb-cap");
+      var at = 0;
+
+      function show(i) {
+        at = (i + shots.length) % shots.length;
+        var src = shots[at];
+        img.src = src.currentSrc || src.src;
+        img.alt = src.alt || "";
+        var fig = src.closest("figure");
+        var c = fig && fig.querySelector("figcaption");
+        cap.textContent = c ? c.textContent.trim() : (src.alt || "");
+        dlg.querySelectorAll(".lb-nav").forEach(function (b) {
+          b.hidden = shots.length < 2;
+        });
+      }
+
+      function open_(i) {
+        show(i);
+        dlg.showModal();
+        document.body.style.overflow = "hidden";
+      }
+
+      // Unlock where we locked, rather than trusting the dialog "close" event —
+      // it did not fire reliably here, which left the page unscrollable.
+      function hide() {
+        document.body.style.overflow = "";
+        img.removeAttribute("src");
+        if (dlg.open) dlg.close();
+      }
+
+      shots.forEach(function (el, i) {
+        el.classList.add("is-zoomable");
+        el.addEventListener("click", function () { open_(i); });
+      });
+
+      dlg.addEventListener("click", function (e) {
+        var act = e.target.dataset ? e.target.dataset.lb : null;
+        if (act === "next") return show(at + 1);
+        if (act === "prev") return show(at - 1);
+        // a click on the backdrop lands on the dialog itself
+        if (act === "close" || e.target === dlg) hide();
+      });
+      dlg.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowRight") { e.preventDefault(); show(at + 1); }
+        if (e.key === "ArrowLeft") { e.preventDefault(); show(at - 1); }
+        // Handled explicitly: a dialog closes itself on Escape, but the "close"
+        // event it is supposed to fire did not arrive here, leaving the page
+        // locked and unscrollable.
+        if (e.key === "Escape") { e.preventDefault(); hide(); }
+      });
+      // Escape closes a dialog natively and fires "cancel"; belt and braces.
+      dlg.addEventListener("cancel", hide);
+      dlg.addEventListener("close", hide);
+    })();
+
     const SEARCH_INDEX = "{{ $idx.RelPermalink }}";
     const SITE_BASE = "{{ "site/" | relURL }}";
     // 846 records is nothing, so the lookup runs entirely in the browser.

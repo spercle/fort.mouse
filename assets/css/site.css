@@ -1029,3 +1029,76 @@ footer nav a:hover { color: var(--accent); }
   margin-top: .4rem;
   line-height: 1.6;
 }
+
+/* ---------- lightbox ---------- */
+
+.is-zoomable { cursor: zoom-in; }
+
+.lightbox {
+  border: 0;
+  padding: 0;
+  /* fit-content, or the dialog stretches to its max-width and the image sits in
+     the left of an empty box with the nav buttons stranded at the screen edges. */
+  width: fit-content;
+  height: fit-content;
+  max-width: min(96vw, 1500px);
+  max-height: 94vh;
+  margin: auto;
+  background: transparent;
+  overflow: visible;
+  color: var(--ink);
+}
+.lightbox::backdrop { background: rgba(8, 10, 7, .88); }
+
+.lightbox img {
+  display: block;
+  max-width: min(96vw, 1500px);
+  max-height: 84vh;
+  width: auto;
+  height: auto;
+  border: 3px solid var(--bark);
+  border-radius: 3px;
+  background: var(--surface-sunk);
+}
+
+.lb-cap {
+  font-family: var(--mono);
+  font-size: .72rem;
+  line-height: 1.6;
+  color: #d9d3c2;
+  margin: .6rem 0 0;
+  max-width: none;
+  text-align: center;
+}
+
+.lightbox button {
+  position: absolute;
+  border: 1px solid rgba(241, 236, 224, .35);
+  background: rgba(18, 22, 15, .78);
+  color: #f1ece0;
+  font-family: var(--mono);
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.lightbox button:hover { border-color: var(--accent); color: var(--accent); }
+.lightbox button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.lb-close { top: -.6rem; right: -.6rem; width: 2.2rem; height: 2.2rem; font-size: 1.3rem; }
+.lb-nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.6rem;
+  height: 3.4rem;
+  font-size: 1.6rem;
+}
+.lb-prev { left: -.8rem; }
+.lb-next { right: -.8rem; }
+
+@media (max-width: 700px) {
+  .lb-close { top: -.4rem; right: -.4rem; width: 2rem; height: 2rem; }
+  .lb-nav { width: 2.2rem; height: 3rem; }
+  .lb-prev { left: -.3rem; }
+  .lb-next { right: -.3rem; }
+  .lightbox img { max-height: 74vh; }
+}
