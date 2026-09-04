@@ -39,6 +39,11 @@ KEYS = MEASUREMENTS | {"site", "loop", "measured", "verified", "source"}
 # Keys allowed inside the `verified:` block.
 VERIFIED_KEYS = {"evidence", "kind", "note", "date", "by", "confidence"}
 
+# How the numbers in this file were arrived at. Defaults to `observed` — a tape measure
+# on the pad — because that is why you would be writing one by hand. Say otherwise when
+# it is otherwise: a guest's report and your own measurement must not read the same.
+SOURCES = {"observed", "reported", "county-record", "disney-category"}
+
 FENCE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n?(.*)\Z", re.S)
 
 
@@ -107,6 +112,11 @@ def load_all(rosters):
                           f"loop {rosters[number]}")
             continue
 
+        src = front.get("source")
+        if src is not None and src not in SOURCES:
+            errors.append(f"{where}: source: {src!r} is not one of {sorted(SOURCES)}")
+            continue
+
         ver = front.get("verified")
         if ver is not None:
             if not isinstance(ver, dict):
@@ -142,7 +152,7 @@ def write(number, front, body, path=None):
     path = path or os.path.join(SITES, f"{number}.md")
 
     ordered = {"site": number}
-    for k in ("loop", "site_length_ft", "site_width_ft", "pad_length_ft",
+    for k in ("loop", "source", "site_length_ft", "site_width_ft", "pad_length_ft",
               "pad_width_ft", "pad_orientation_deg", "road_offset_ft", "pad_surface",
               "backs_onto", "approach_side", "measured", "verified"):
         if front.get(k) is not None:

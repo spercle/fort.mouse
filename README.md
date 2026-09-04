@@ -170,6 +170,20 @@ The pad is the poured concrete inside it, often far shorter: site 101 is 45 ft o
 over a 24 ft slab. Aerial tracing produces site dimensions, because the slab and the
 apron are one surface at that resolution.
 
+**A site file overrides the aerial pass, field by field.** Set only `pad_width_ft` and
+the traced `site_length_ft` still shows; set `site_length_ft` and yours replaces the
+traced one outright. Nothing merges or averages — the better source wins the field.
+
+By default a site file claims `observed`, a tape measure on the pad, because that is
+why you would write one by hand. When it is something else, say so:
+
+```yaml
+source: reported        # observed | reported | county-record | disney-category
+```
+
+A guest's report and your own measurement must not read the same on the page, and only
+`observed` gets the "measured on the ground" callout.
+
 These files are **human-owned**. `derive.py` never touches them, so re-running the
 aerial pass cannot overwrite something you stood on the pad to find out. Typos are
 caught at build time rather than silently ignored — an unknown key, a site that is not

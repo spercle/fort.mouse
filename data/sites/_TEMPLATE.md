@@ -8,6 +8,11 @@
 site: 1234
 loop: 1200          # optional; checked against the roster, so a typo is caught
 
+# How these numbers were arrived at. Defaults to `observed` — a tape measure on the
+# pad. Say otherwise when it is otherwise; a guest's report must not read as your own
+# measurement. One of: observed | reported | county-record | disney-category
+# source: observed
+
 # ---- measured on the ground ----------------------------------------------------
 # The SITE is what a rig has to fit into, concrete and apron together — this is the
 # figure Disney publishes. The PAD is the poured concrete inside it, often much

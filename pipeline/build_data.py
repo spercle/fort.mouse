@@ -133,14 +133,19 @@ def main():
             # Highest precedence: someone was there. This overwrites a measured
             # aerial value, not just a gap — the tape measure is the better source.
             sf = site_notes.get(n) or {}
+            # A hand-written file says how it knows. Defaulting everything to
+            # "observed" would put a tape measure behind a value someone was told
+            # over the phone.
+            sf_source = sf.get("source") or "observed"
             if sf:
                 for key in MEASURES:
                     if sf.get(key) is not None:
                         fields[key] = {"state": "measured", "value": sf[key],
-                                       "source": "observed",
+                                       "source": sf_source,
                                        "date": sf.get("measured")}
+            has_sf_measure = any(sf.get(k) is not None for k in MEASURES)
             obs = ({"date": sf.get("measured")}
-                   if any(sf.get(k) is not None for k in MEASURES) else None)
+                   if has_sf_measure and sf_source == "observed" else None)
             ver = sf.get("verified")
 
             for key, unit in UNITS.items():
