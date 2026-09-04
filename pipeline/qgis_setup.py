@@ -115,6 +115,16 @@ PADS = os.path.join(REPO, "work", f"loop-{LOOP}-pads.gpkg")
 PADS_NAME = f"Loop {LOOP} pads"
 drop_existing([PADS_NAME])
 
+# A CRS that fails to resolve does not raise — it comes back invalid and gets written
+# into the GeoPackage as "undefined" (srs_id 99999). Every rectangle drawn into that
+# file would carry meaningless coordinates, and nothing downstream would say so until
+# the measurements came out wrong. Refuse to create the file instead.
+_crs = QgsCoordinateReferenceSystem(CRS_FT)
+if not _crs.isValid():
+    raise RuntimeError(
+        f"{CRS_FT} did not resolve — QGIS cannot find its projection database.\n"
+        "  Do NOT digitize until this is fixed; the pads would have no usable CRS.")
+
 if not os.path.exists(PADS):
     fields = QgsFields()
     fields.append(QgsField("site_number", TYPE_INT))
@@ -128,9 +138,7 @@ if not os.path.exists(PADS):
     os.makedirs(os.path.dirname(PADS), exist_ok=True)
 
     writer = QgsVectorFileWriter.create(
-        PADS, fields, WKB_POLYGON,
-        QgsCoordinateReferenceSystem(CRS_FT),
-        project.transformContext(), opts)
+        PADS, fields, WKB_POLYGON, _crs, project.transformContext(), opts)
 
     # The writer only commits to disk when it is destroyed. Without this the file
     # is never written and the failure is completely silent.
@@ -143,7 +151,16 @@ if not os.path.exists(PADS):
             f"could not create {PADS}\n  {msg}\n"
             "  Create it by hand: Layer > Create Layer > New GeoPackage Layer, "
             "polygon, EPSG:2236, with the fields in pipeline/README.md")
-    print(f"  created {PADS}")
+    # Confirm what actually landed on disk, rather than trusting the writer.
+    import sqlite3
+    _srs = sqlite3.connect(PADS).execute(
+        "select srs_id from gpkg_contents").fetchone()[0]
+    if int(_srs) != 2236:
+        os.remove(PADS)
+        raise RuntimeError(
+            f"the new GeoPackage came out as EPSG:{_srs}, not 2236 — deleted it "
+            "rather than leave a file that would silently produce wrong measurements")
+    print(f"  created {PADS}  (EPSG:{_srs}, ftUS)")
 
 pads = QgsVectorLayer(f"{PADS}|layername=pads", PADS_NAME, "ogr")
 if pads.isValid():
@@ -179,4 +196,8 @@ except (NameError, ValueError) as exc:
     print(f"could not zoom automatically ({exc}) — zoom manually")
 
 print("\nready. Shape Digitizing ▸ Rectangle from 3 points (projected).")
-print("Trace the concrete, not the site. Record which vintage you measured from.")
+# ADR-0005: what you trace from above is the SITE — the slab and the apron read as one
+# surface at this resolution, and derive.py records the result as site_length_ft. The
+# concrete alone can only be separated on the ground, with a tape measure.
+print("Trace the whole hardstand — that is the SITE, not the concrete pad alone.")
+print("Record which imagery vintage you measured from.")
