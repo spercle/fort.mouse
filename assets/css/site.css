@@ -896,6 +896,16 @@ figure.aerial-loop figcaption { max-width: none; }
   .treeline { height: 44px; }
 }
 
+/* Below this the masthead's first row cannot give the input a usable width.
+   The brand and the theme toggle keep their intrinsic size, .lookup is the only
+   flexible child, and so it absorbs the whole shortfall: 72px of input at 390,
+   42px at 360, 20px at 320 — narrower than one character of the value typed
+   into it. Give it a row of its own, between the brand and the nav. */
+@media (max-width: 560px) {
+  .lookup { width: 100%; flex: none; }
+  .lookup input { flex: 1; }
+}
+
 /* ---------- loop entrance sign ---------- */
 
 .loop-sign {
