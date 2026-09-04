@@ -105,7 +105,7 @@ def main():
         print("SITE FILES REJECTED — nothing written\n" + str(exc), file=sys.stderr)
         sys.exit(1)
     os.makedirs(OUT, exist_ok=True)
-    index = []
+    index, loop_index = [], []
     totals = {"sites": 0, "own": 0, "seeded": 0, "observed": 0}
 
     for loop_no, loop in sorted(loops.items()):
@@ -191,7 +191,13 @@ def main():
                 "is_measured": length["state"] == "measured",
                 "seeded_credit": credit if length.get("source") == "seeded" else None,
             })
-            index.append({"n": n, "l": loop_no})
+            # [number, loop, flags] — 1 measured, 2 has photographs, 4 number
+            # verified. Positional arrays rather than objects: 844 rows of repeated
+            # key names cost more than the data.
+            index.append([n, loop_no,
+                          (1 if length["state"] == "measured" else 0)
+                          | (2 if photos.get(n) else 0)
+                          | (4 if ver else 0)])
 
         lengths.sort()
         resolved = {
@@ -219,6 +225,8 @@ def main():
         with open(os.path.join(OUT, f"{loop_no}.yaml"), "w") as fh:
             yaml.safe_dump(resolved, fh, sort_keys=False, allow_unicode=True)
 
+        loop_index.append({"l": loop_no, "n": loop["loop_name"],
+                           "c": loop["category"]})
         totals["sites"] += len(out_sites)
         totals["own"] += own
         totals["seeded"] += seeded
@@ -234,7 +242,9 @@ def main():
     # assets/, not static/, so Hugo can fingerprint it — see baseof.html.
     assets = os.path.join(ROOT, "assets")
     os.makedirs(assets, exist_ok=True)
-    json.dump(index, open(os.path.join(assets, "search-index.json"), "w"))
+    json.dump({"loops": loop_index, "sites": index},
+              open(os.path.join(assets, "search-index.json"), "w"),
+              separators=(",", ":"))
     print(f"\n{totals['sites']} sites across {len(loops)} loop(s) -> data/resolved/")
     print(f"  {totals['own']} measured by us, {totals['seeded']} still seeded")
     print(f"  {totals['observed']} measured on the ground")

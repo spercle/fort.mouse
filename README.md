@@ -135,6 +135,21 @@ python3 pipeline/derive.py 1200 work/loop-1200-pads.geojson
 `derive.py` refuses to overwrite a loop with an empty roster, so a bad export can't wipe
 your work.
 
+### Search
+
+The **Find** box in the masthead searches site numbers, loop numbers, loop names and
+categories — "1204", "Dogwood", "Premium Meadow" all work. It runs entirely in the
+browser against `assets/search-index.json`, which `build_data.py` regenerates on every
+build; there is nothing to reindex by hand.
+
+Results carry three dots: **has photographs**, **measured**, **number verified**, so you
+can see what is behind a site before clicking into it.
+
+The index is deliberately tiny — 12 KB for 844 sites and 21 loops, positional arrays
+rather than objects, because 844 rows of repeated key names cost more than the data.
+Adding a searchable field means adding it there and to the matcher in
+`layouts/_default/baseof.html`.
+
 ### Say something about a site
 
 Everything known about one site lives in **one file**: `data/sites/101.md`. Facts in

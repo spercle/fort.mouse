@@ -1114,3 +1114,70 @@ footer nav a:hover { color: var(--accent); }
 .site-notes > :last-child { margin-bottom: 0; }
 .site-notes ul, .site-notes ol { padding-left: 1.2rem; }
 .site-notes li { margin: 0.25rem 0; }
+
+/* ---- search results ------------------------------------------------------
+   The lookup grew from a number jump into a search over sites, loop names and
+   categories. The panel hangs off the form, which is position: relative. */
+.lookup { position: relative; }
+.lookup-results {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 60;
+  width: min(23rem, 88vw);
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.35);
+  max-height: min(60vh, 26rem);
+  overflow-y: auto;
+}
+.lookup-results li { margin: 0; }
+.lookup-results a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 5px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.lookup-results a:hover,
+.lookup-results .is-on a { background: var(--surface-sunk); }
+.lr-kind {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  min-width: 2.4rem;
+}
+.lookup-results b { font-family: var(--mono); font-size: 0.95rem; }
+.lr-sub {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Three states worth seeing before you click through. */
+.lr-mark {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.lr-photo { background: var(--ember); }
+.lr-measured { background: var(--measured); }
+.lr-verified { background: var(--measured); box-shadow: 0 0 0 2px var(--measured-soft); }
+
+@media (max-width: 700px) {
+  .lookup-results { width: min(20rem, 92vw); }
+  .lr-sub { display: none; }
+}

@@ -53,11 +53,14 @@
         <a href="{{ "credits/" | relURL }}"
            {{ if eq .RelPermalink (relURL "credits/") }}aria-current="page"{{ end }}>Credits</a>
       </nav>
-      <form class="lookup" id="lookup" role="search">
-        <label class="fact-k" for="site-input">Site</label>
-        <input id="site-input" name="site" type="text" inputmode="numeric"
-               autocomplete="off" placeholder="1204" aria-label="Go to a site by number">
+      <form class="lookup" id="lookup" role="search" autocomplete="off">
+        <label class="fact-k" for="site-input">Find</label>
+        <input id="site-input" name="q" type="text" autocomplete="off"
+               placeholder="1204 or Dogwood" aria-label="Find a site or loop"
+               role="combobox" aria-expanded="false" aria-controls="lookup-results"
+               aria-autocomplete="list">
         <button type="submit">Go</button>
+        <ul class="lookup-results" id="lookup-results" role="listbox" hidden></ul>
         <span class="lookup-msg" id="lookup-msg" role="status"></span>
       </form>
     </div>
@@ -178,28 +181,134 @@
 
     const SEARCH_INDEX = "{{ $idx.RelPermalink }}";
     const SITE_BASE = "{{ "site/" | relURL }}";
-    // 846 records is nothing, so the lookup runs entirely in the browser.
-    const form = document.getElementById("lookup");
-    const input = document.getElementById("site-input");
-    const msg = document.getElementById("lookup-msg");
-    let known = null;
+    const LOOP_BASE = "{{ "loop/" | relURL }}";
 
-    async function index() {
-      if (known) return known;
-      const rows = await (await fetch(SEARCH_INDEX)).json();
-      known = new Set(rows.map((r) => String(r.n)));
-      return known;
-    }
-    input.addEventListener("focus", () => { index(); });
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const n = input.value.trim();
-      msg.textContent = "";
-      if (!/^\d+$/.test(n)) { msg.textContent = "Numbers only"; return; }
-      const set = await index();
-      if (set.has(n)) { location.href = SITE_BASE + n + "/"; }
-      else { msg.textContent = "No site " + n + " yet"; }
-    });
+    // 844 sites and 21 loops is nothing, so search runs entirely in the browser.
+    // Flags per site: 1 measured, 2 has photographs, 4 number verified.
+    (function () {
+      const form = document.getElementById("lookup");
+      const input = document.getElementById("site-input");
+      const list = document.getElementById("lookup-results");
+      const msg = document.getElementById("lookup-msg");
+      let data = null, rows = [], at = -1;
+
+      async function index() {
+        if (!data) {
+          data = await (await fetch(SEARCH_INDEX)).json();
+          data.byLoop = {};
+          data.loops.forEach((l) => { data.byLoop[l.l] = l; });
+        }
+        return data;
+      }
+      input.addEventListener("focus", index, { once: true });
+
+      const MARKS = [[2, "photo", "has photographs"],
+                     [1, "measured", "measured"],
+                     [4, "verified", "number verified"]];
+
+      function search(q) {
+        const d = data, out = [];
+        const digits = /^\d+$/.test(q);
+        const low = q.toLowerCase();
+
+        if (digits) {
+          // Exact site first, then loops whose number starts the same, then
+          // sites whose number starts with it — the specific before the broad.
+          for (const s of d.sites) if (String(s[0]) === q) out.push(site(s));
+          for (const l of d.loops) {
+            if (String(l.l).startsWith(q) && String(l.l) !== q) out.push(loop(l));
+          }
+          for (const s of d.sites) {
+            if (out.length > 11) break;
+            if (String(s[0]).startsWith(q) && String(s[0]) !== q) out.push(site(s));
+          }
+        } else {
+          for (const l of d.loops) {
+            if (l.n.toLowerCase().includes(low) || l.c.toLowerCase().includes(low)
+                || ("loop " + l.l).includes(low)) out.push(loop(l));
+          }
+        }
+        return out.slice(0, 12);
+      }
+
+      function loop(l) {
+        return { href: LOOP_BASE + l.l + "/", kind: "Loop",
+                 title: "Loop " + l.l, sub: l.n + " · " + l.c, marks: [] };
+      }
+      function site(s) {
+        const l = data.byLoop[s[1]];
+        return { href: SITE_BASE + s[0] + "/", kind: "Site", title: String(s[0]),
+                 sub: l ? "Loop " + l.l + " · " + l.n : "",
+                 marks: MARKS.filter((m) => s[2] & m[0]) };
+      }
+
+      function render(q) {
+        rows = q ? search(q) : [];
+        at = -1;
+        list.innerHTML = "";
+        if (!rows.length) {
+          list.hidden = true;
+          input.setAttribute("aria-expanded", "false");
+          msg.textContent = q && data ? "Nothing matches" : "";
+          return;
+        }
+        msg.textContent = "";
+        rows.forEach((r, i) => {
+          const li = document.createElement("li");
+          li.role = "option";
+          li.id = "lookup-opt-" + i;
+          li.innerHTML =
+            '<a href="' + r.href + '"><span class="lr-kind">' + r.kind + "</span>" +
+            '<b>' + r.title + "</b><span class=\"lr-sub\"></span>" +
+            r.marks.map((m) => '<i class="lr-mark lr-' + m[1] + '" title="' + m[2] +
+                               '"></i>').join("") + "</a>";
+          li.querySelector(".lr-sub").textContent = r.sub;
+          list.appendChild(li);
+        });
+        list.hidden = false;
+        input.setAttribute("aria-expanded", "true");
+      }
+
+      function highlight(next) {
+        const items = list.children;
+        if (!items.length) return;
+        if (at >= 0) items[at].classList.remove("is-on");
+        at = (next + items.length) % items.length;
+        items[at].classList.add("is-on");
+        input.setAttribute("aria-activedescendant", items[at].id);
+        items[at].scrollIntoView({ block: "nearest" });
+      }
+
+      function close() {
+        list.hidden = true;
+        at = -1;
+        input.setAttribute("aria-expanded", "false");
+      }
+
+      input.addEventListener("input", async () => {
+        await index();
+        render(input.value.trim());
+      });
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown") { e.preventDefault(); highlight(at + 1); }
+        else if (e.key === "ArrowUp") { e.preventDefault(); highlight(at - 1); }
+        else if (e.key === "Escape") { close(); }
+      });
+      document.addEventListener("click", (e) => {
+        if (!form.contains(e.target)) close();
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await index();
+        const q = input.value.trim();
+        // A highlighted row wins; otherwise the first result; otherwise say so
+        // rather than navigating somewhere the user did not ask for.
+        const pick = at >= 0 ? rows[at] : (rows.length ? rows[0] : search(q)[0]);
+        if (pick) { location.href = pick.href; return; }
+        msg.textContent = /^\d+$/.test(q) ? "No site " + q : "Nothing matches";
+      });
+    })();
   </script>
 </body>
 </html>
