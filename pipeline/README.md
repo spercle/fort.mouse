@@ -21,8 +21,7 @@ its map, so you know which stretch of road carries which numbers before you star
 
 ## Before you start
 
-**QGIS is not installed on this machine.** Get it from
-[qgis.org/download](https://qgis.org/download/) — the Long Term Release is fine.
+**QGIS 4.2.2 is installed** at `/Applications/QGIS-final-4_2_2.app`.
 
 Read [ADR-0003](../docs/adr/0003-imagery-source-and-legal-basis.md) first if you
 haven't. The short version: **do not open Google Earth for this.** Its terms
