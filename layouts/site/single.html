@@ -24,9 +24,6 @@
     <span class="chip chip-cat">{{ $loop.category }}</span>
     <span class="chip">{{ if $b.sewer }}Sewer{{ else }}No sewer{{ end }}</span>
     <span class="chip">Sleeps {{ $b.max_occupancy }}</span>
-    {{ if eq $s.number_confidence "verified" }}
-      <span class="chip chip-ok">Number verified</span>
-    {{ end }}
   </p>
 </div>
 
@@ -144,23 +141,6 @@
     </table>
   </div>
 
-  {{ if $s.verified }}
-    <div class="callout is-verified" style="margin-top:1rem">
-      <p><b>This site number is verified.</b> {{ $s.verified.note }}
-      {{ if eq $s.verified.kind "post" }}
-        A photograph of the numbered post is the strongest evidence there is —
-        everything else in this project's numbering is inferred from sequence.
-      {{ end }}
-      {{ with $s.verified.date }}Evidence captured {{ . }}.{{ end }}</p>
-    </div>
-  {{ else if $loop.sign_evidence }}
-    <div class="callout is-verified" style="margin-top:1rem">
-      <p><b>This site number is verified.</b> Loop {{ $loop.loop }}'s entrance sign
-      reads &ldquo;{{ $loop.sign_evidence.reads }}&rdquo;, which puts
-      {{ $s.site_number }} inside the loop's stated range. A sign bolted to the loop
-      it describes is a primary source.</p>
-    </div>
-  {{ end }}
 </section>
 
 {{/* The body of data/sites/<n>.md, written by hand. Markdown, so a note can carry
