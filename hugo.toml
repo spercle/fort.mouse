@@ -17,8 +17,8 @@ title = "The.Fort"
 # address is the only inbound path the ingest pipeline has, so a dead one is worse
 # than an absent one.
 [params]
-  photo_email = "photos@example.invalid"
-  corrections_email = "corrections@example.invalid"
+  photo_email = "photos@percle.org"
+  corrections_email = "corrections@percle.org"
 
 disableKinds = ["taxonomy", "term", "rss"]
 enableRobotsTXT = true
