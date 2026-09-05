@@ -24,9 +24,7 @@
     <span class="chip chip-cat">{{ $loop.category }}</span>
     <span class="chip">{{ if $b.sewer }}Sewer{{ else }}No sewer{{ end }}</span>
     <span class="chip">Sleeps {{ $b.max_occupancy }}</span>
-    {{ if eq $s.number_confidence "hypothesis" }}
-      <span class="chip chip-warn">Number unverified</span>
-    {{ else if eq $s.number_confidence "verified" }}
+    {{ if eq $s.number_confidence "verified" }}
       <span class="chip chip-ok">Number verified</span>
     {{ end }}
   </p>
@@ -142,22 +140,11 @@
           <td>Sewer</td><td class="num">{{ if $b.sewer }}Yes{{ else }}No{{ end }}</td>
           <td><span class="tag" data-kind="disney-category">disney-category</span></td>
         </tr>
-        <tr>
-          <td>Site number</td><td class="num">{{ $s.site_number }}</td>
-          <td><span class="tag" data-kind="{{ $s.number_confidence }}">{{ $s.number_confidence }}</span></td>
-        </tr>
       </tbody>
     </table>
   </div>
 
-  {{ if eq $s.number_confidence "hypothesis" }}
-    <div class="callout" style="margin-top:1rem">
-      <p><b>This site number is a hypothesis.</b> Loops are documented as numbering
-      sequentially, so this number is expected rather than observed. It becomes
-      <span class="mono">verified</span> when someone reads it off the loop sign or
-      photographs the post.</p>
-    </div>
-  {{ else if $s.verified }}
+  {{ if $s.verified }}
     <div class="callout is-verified" style="margin-top:1rem">
       <p><b>This site number is verified.</b> {{ $s.verified.note }}
       {{ if eq $s.verified.kind "post" }}
