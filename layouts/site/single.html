@@ -183,6 +183,37 @@
 {{ with $s.photos }}
 <section>
   <h2>Photographs</h2>
+  {{/* Split the spheres out rather than filtering with `where`: a flat photo has no
+        `projection` key at all, and `where ... "!=" ...` drops rows whose key is
+        missing, which silently loses every ordinary photograph. */}}
+  {{ $spheres := slice }}{{ $flat := slice }}
+  {{ range . }}
+    {{ if eq .projection "equirectangular" }}
+      {{ $spheres = $spheres | append . }}
+    {{ else }}
+      {{ $flat = $flat | append . }}
+    {{ end }}
+  {{ end }}
+
+  {{ range $spheres }}
+    {{/* The <img> is the whole photograph, flat. It is what a reader without WebGL
+          sees, and it is also the texture the viewer uploads — so it must stay in the
+          DOM and must stay lazy, or every site page with a sphere pulls 3 MB on load. */}}
+    <figure class="photo is-360">
+      <div class="pano" data-pano>
+        <img src="{{ strings.TrimPrefix "/" .file | relURL }}" loading="lazy"
+             alt="360 degree photograph of site {{ $s.site_number }}">
+        <canvas hidden></canvas>
+        <p class="pano-hint" hidden>Drag to look around · scroll to zoom</p>
+      </div>
+      <figcaption>
+        360° photograph{{ with .taken }} · taken {{ . }}{{ end }}
+        <span class="pano-flat">Shown flat — this browser has no WebGL.</span>
+      </figcaption>
+    </figure>
+  {{ end }}
+
+  {{ with $flat }}
   <div class="photogrid">
     {{ range . }}
       <figure class="photo">
@@ -197,10 +228,200 @@
       </figure>
     {{ end }}
   </div>
+  {{ end }}
   <p class="fallback">
     First-party photographs. A guest sending a photo grants permission to publish it
     here with credit — see <a href="{{ "credits/" | relURL }}">credits</a>.
   </p>
+
+{{ with $spheres }}
+<script>
+  // Equirectangular viewer. No library: a sphere is one fullscreen quad and a dozen
+  // lines of trigonometry in a fragment shader, and the alternative is 600 KB of
+  // three.js to draw two triangles. Same reasoning as the hand-rolled EXIF reader.
+  //
+  // Degrades honestly. The <img> underneath IS the photograph, flat and complete, so
+  // a browser with no WebGL — or a texture limit below the image — shows the whole
+  // sphere unrolled rather than a broken box.
+  (function () {
+    var VS =
+      "attribute vec2 a; varying vec2 v;" +
+      "void main(){ v = a; gl_Position = vec4(a, 0.0, 1.0); }";
+    var FS =
+      "precision highp float; varying vec2 v; uniform sampler2D tex;" +
+      "uniform float yaw, pitch, fov, aspect;" +
+      "void main(){" +
+      // Ray through this pixel, in view space, looking down -z.
+      "  float t = tan(fov * 0.5);" +
+      "  vec3 d = normalize(vec3(v.x * t * aspect, v.y * t, -1.0));" +
+      "  float cp = cos(pitch), sp = sin(pitch);" +
+      "  d = vec3(d.x, d.y * cp - d.z * sp, d.y * sp + d.z * cp);" +
+      "  float cy = cos(yaw), sy = sin(yaw);" +
+      "  d = vec3(d.x * cy + d.z * sy, d.y, -d.x * sy + d.z * cy);" +
+      // Straight back out to longitude/latitude, which IS the equirectangular grid.
+      "  float lon = atan(d.x, -d.z);" +
+      "  float lat = asin(clamp(d.y, -1.0, 1.0));" +
+      "  gl_FragColor = texture2D(tex, vec2(lon * 0.1591549 + 0.5, 0.5 - lat * 0.3183099));" +
+      "}";
+
+    function compile(gl, type, src) {
+      var sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      return gl.getShaderParameter(sh, gl.COMPILE_STATUS) ? sh : null;
+    }
+
+    function pot(n) { return (n & (n - 1)) === 0; }
+
+    function setup(box) {
+      var img = box.querySelector("img");
+      var cv = box.querySelector("canvas");
+      var hint = box.querySelector(".pano-hint");
+
+      var gl = cv.getContext("webgl", { alpha: false, antialias: false })
+            || cv.getContext("experimental-webgl", { alpha: false });
+      if (!gl) return;
+      if (img.naturalWidth > gl.getParameter(gl.MAX_TEXTURE_SIZE)) return;
+
+      var vs = compile(gl, gl.VERTEX_SHADER, VS);
+      var fs = compile(gl, gl.FRAGMENT_SHADER, FS);
+      if (!vs || !fs) return;
+      var prog = gl.createProgram();
+      gl.attachShader(prog, vs);
+      gl.attachShader(prog, fs);
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+      gl.useProgram(prog);
+
+      var buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER,
+        new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      var a = gl.getAttribLocation(prog, "a");
+      gl.enableVertexAttribArray(a);
+      gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
+
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+      // Wrapping east-west closes the seam behind the viewer, but only a
+      // power-of-two texture may REPEAT in WebGL 1. Everything else clamps, which
+      // costs a hairline at due south and never fails to render.
+      var wrap = (pot(img.naturalWidth) && pot(img.naturalHeight))
+        ? gl.REPEAT : gl.CLAMP_TO_EDGE;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      // No mipmaps on purpose: the longitude wrap makes the derivative explode at the
+      // seam, and the hardware answers by picking the smallest mip — a blurred stripe
+      // down the join that looks like a stitching fault in the photograph.
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+      var uYaw = gl.getUniformLocation(prog, "yaw");
+      var uPitch = gl.getUniformLocation(prog, "pitch");
+      var uFov = gl.getUniformLocation(prog, "fov");
+      var uAspect = gl.getUniformLocation(prog, "aspect");
+
+      var yaw = 0, pitch = 0, fov = 75 * Math.PI / 180, queued = false;
+
+      function draw() {
+        queued = false;
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var w = Math.max(1, Math.round(box.clientWidth * dpr));
+        var h = Math.max(1, Math.round(box.clientHeight * dpr));
+        if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+        gl.viewport(0, 0, w, h);
+        gl.uniform1f(uYaw, yaw);
+        gl.uniform1f(uPitch, pitch);
+        gl.uniform1f(uFov, fov);
+        gl.uniform1f(uAspect, w / h);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      }
+      // Redraw on change only. A still view that repaints 60 times a second is a
+      // flat battery for no pixels anyone can see.
+      function nudge() {
+        if (!queued) { queued = true; requestAnimationFrame(draw); }
+      }
+
+      img.hidden = true;
+      cv.hidden = false;
+      hint.hidden = false;
+      box.classList.add("is-live");
+      cv.tabIndex = 0;
+      cv.setAttribute("role", "img");
+      cv.setAttribute("aria-label",
+        img.alt + ". Drag, or use the arrow keys, to look around.");
+      draw();
+
+      var pts = new Map(), lastGap = 0;
+      cv.addEventListener("pointerdown", function (e) {
+        pts.set(e.pointerId, e);
+        cv.setPointerCapture(e.pointerId);
+      });
+      cv.addEventListener("pointermove", function (e) {
+        if (!pts.has(e.pointerId)) return;
+        var prev = pts.get(e.pointerId);
+        pts.set(e.pointerId, e);
+        if (pts.size === 1) {
+          // Scale by field of view, so a zoomed-in view turns proportionally slower
+          // and the drag stays glued to the same feature.
+          var k = fov / cv.clientHeight;
+          yaw += (e.clientX - prev.clientX) * k;
+          pitch += (e.clientY - prev.clientY) * k;
+          pitch = Math.max(-1.5533, Math.min(1.5533, pitch));
+          nudge();
+        } else if (pts.size === 2) {
+          var it = pts.values(), p1 = it.next().value, p2 = it.next().value;
+          var gap = Math.hypot(p1.clientX - p2.clientX, p1.clientY - p2.clientY);
+          if (lastGap) zoom(Math.log(lastGap / gap));
+          lastGap = gap;
+        }
+      });
+      function release(e) {
+        pts.delete(e.pointerId);
+        if (pts.size < 2) lastGap = 0;
+      }
+      cv.addEventListener("pointerup", release);
+      cv.addEventListener("pointercancel", release);
+
+      function zoom(d) {
+        fov = Math.max(0.35, Math.min(2.0, fov * Math.exp(d)));
+        nudge();
+      }
+      cv.addEventListener("wheel", function (e) {
+        e.preventDefault();
+        zoom(e.deltaY * 0.0015);
+      }, { passive: false });
+
+      cv.addEventListener("keydown", function (e) {
+        var step = fov * 0.12;
+        if (e.key === "ArrowLeft") yaw += step;
+        else if (e.key === "ArrowRight") yaw -= step;
+        else if (e.key === "ArrowUp") pitch += step;
+        else if (e.key === "ArrowDown") pitch -= step;
+        else if (e.key === "+" || e.key === "=") zoom(-0.2);
+        else if (e.key === "-") zoom(0.2);
+        else return;
+        e.preventDefault();
+        pitch = Math.max(-1.5533, Math.min(1.5533, pitch));
+        nudge();
+      });
+
+      if (window.ResizeObserver) new ResizeObserver(nudge).observe(box);
+      else window.addEventListener("resize", nudge);
+    }
+
+    document.currentScript.closest("section")
+      .querySelectorAll("[data-pano]").forEach(function (box) {
+        var img = box.querySelector("img");
+        // The texture cannot be uploaded before the pixels exist, and the image is
+        // lazy on purpose — so wait for it rather than racing it.
+        if (img.complete && img.naturalWidth) setup(box);
+        else img.addEventListener("load", function () { setup(box); }, { once: true });
+      });
+  })();
+</script>
+{{ end }}
 </section>
 {{ end }}
 
