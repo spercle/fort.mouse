@@ -394,9 +394,11 @@
     how loud the road is, or whether the ground holds water. A photo from someone who
     stayed here is worth more than anything a satellite can tell you.
   </p>
+  {{ with site.Params.photo_email }}
   <p>
-    <a class="cta" href="mailto:photos@example.invalid?subject={{ printf "Photo for site %v (Loop %v)" $s.site_number $loop.loop | urlquery }}&amp;body={{ printf "Site: %v\nLoop: %v %s\nWhen you stayed: \nRig type and length: \nAnything worth knowing: \n\n(Attaching a photo means we can publish it here, credited to you.)\n" $s.site_number $loop.loop $loop.loop_name | urlquery }}">Send {{ if $has_photos }}another{{ else }}a{{ end }} photo of site {{ $s.site_number }}</a>
+    <a class="cta" href="mailto:{{ . }}?subject={{ printf "Photo for site %v (Loop %v)" $s.site_number $loop.loop | urlquery }}&amp;body={{ printf "Site: %v\nLoop: %v %s\nWhen you stayed: \nRig type and length: \nAnything worth knowing: \n\n(Attaching a photo means we can publish it here, credited to you.)\n" $s.site_number $loop.loop $loop.loop_name | urlquery }}">Send {{ if $has_photos }}another{{ else }}a{{ end }} photo of site {{ $s.site_number }}</a>
   </p>
+  {{ end }}
   <p class="fallback">
     Sending a photo grants permission to publish it here with credit. Please only send
     photos you took yourself — images from other guides can't be used.
@@ -408,7 +410,9 @@
   <p>
     Corrections and first-hand reports are welcome — if you have stayed on this site, you
     know things no aerial photograph can show.
-    <a href="mailto:corrections@example.invalid?subject=Site%20{{ $s.site_number }}%20(Loop%20{{ $loop.loop }})">Email about site {{ $s.site_number }}</a>.
+    {{ with site.Params.corrections_email }}
+      <a href="mailto:{{ . }}?subject={{ printf "Site %v (Loop %v)" $s.site_number $loop.loop | urlquery }}">Email about site {{ $s.site_number }}</a>.
+    {{ end }}
   </p>
   <p class="fallback">
     Please describe only sites you have stayed on. Reports copied from another guide

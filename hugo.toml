@@ -12,6 +12,14 @@ title = "The.Fort"
   source = "data/resolved"
   target = "data"
 
+# Where guests write in. Both are optional: leave one blank and the link that uses it
+# is not rendered at all, rather than shipping a mailto: nobody reads. The photo
+# address is the only inbound path the ingest pipeline has, so a dead one is worse
+# than an absent one.
+[params]
+  photo_email = "photos@example.invalid"
+  corrections_email = "corrections@example.invalid"
+
 disableKinds = ["taxonomy", "term", "rss"]
 enableRobotsTXT = true
 
