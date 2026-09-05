@@ -47,6 +47,11 @@ SKIP_NAMES = {"@eadir", ".ds_store", "thumbs.db", ".spotlight-v100"}
 # again, and --apply would duplicate the lot.
 FILED = "_filed"
 MAX_EDGE = 2000          # published long edge; phones now shoot 5712 px
+# A 360 is looked at a slice at a time. At a 90 degrees field of view you are seeing a
+# quarter of the width, so 2000 px would leave 500 px across the screen — softer than
+# the flat photo beside it. 4096 gives about 1000 px across that view and still lands
+# under 3 MB, which is the most a static site should ask of a phone for one image.
+MAX_EDGE_360 = 4096
 JPEG_QUALITY = 78
 MAX_MATCH_FT = 160.0     # beyond this a GPS fix is not confidently "that site"
 EARTH_FT = 20925721.8
@@ -139,6 +144,72 @@ def read_exif(path):
             if lat or lon:
                 out["gps"] = (round(lat, 7), round(lon, 7))
     return out
+
+
+XMP_NS = b"http://ns.adobe.com/xap/1.0/\x00"
+
+
+def read_xmp(path):
+    """The XMP packet from a JPEG as text, or "".
+
+    Separate from read_exif and not folded into it: EXIF and XMP are both APP1
+    segments, and a reader that stops at the first APP1 it recognises finds EXIF and
+    never sees the panorama metadata sitting in the segment behind it.
+    """
+    try:
+        data = open(path, "rb").read(512 * 1024)
+    except OSError:
+        return ""
+    if data[:2] != b"\xff\xd8":
+        return ""
+    i = 2
+    while i < len(data) - 4:
+        if data[i] != 0xFF:
+            break
+        marker = data[i + 1]
+        if marker == 0xDA:          # start of scan — all metadata is behind us
+            break
+        if marker == 0x01 or 0xD0 <= marker <= 0xD9:
+            i += 2                  # standalone marker, no length field
+            continue
+        size = struct.unpack(">H", data[i + 2:i + 4])[0]
+        if marker == 0xE1 and data[i + 4:i + 4 + len(XMP_NS)] == XMP_NS:
+            return data[i + 4 + len(XMP_NS):i + 2 + size].decode("utf-8", "ignore")
+        i += 2 + size
+    return ""
+
+
+def projection_of(path):
+    """"equirectangular" for a 360 photograph, otherwise None.
+
+    The evidence is Google's GPano XMP, which is what an Insta360, a Theta or a phone's
+    photo-sphere mode writes when it stitches. A 2:1 image with no such marker is NOT
+    assumed to be a sphere — the same rule the site matching follows. Guessing wrong
+    here wraps a flat photograph around the inside of a ball, and the reader has no way
+    to tell that what they are being shown is nonsense.
+    """
+    xmp = read_xmp(path)
+    if not xmp:
+        return None
+    m = (re.search(r"GPano:ProjectionType\s*=\s*[\"\']([^\"\']+)", xmp)
+         or re.search(r"<GPano:ProjectionType>\s*([^<\s]+)", xmp))
+    if m and m.group(1).strip().lower() == "equirectangular":
+        return "equirectangular"
+    return None
+
+
+def dims(path):
+    """Pixel size, via the one image tool this project assumes."""
+    import subprocess
+    out = subprocess.run(["sips", "-g", "pixelWidth", "-g", "pixelHeight", path],
+                         capture_output=True).stdout.decode()
+    w = h = 0
+    for line in out.splitlines():
+        if "pixelWidth" in line:
+            w = int(line.split(":")[1])
+        elif "pixelHeight" in line:
+            h = int(line.split(":")[1])
+    return w, h
 
 
 def clear_orientation(path):
@@ -277,33 +348,29 @@ def tidy(paths):
     return moved
 
 
-def convert(src, dest):
+def convert(src, dest, pano=False):
     """Normalise to a web-sized JPEG with the rotation baked into the pixels.
 
     Browsers honour EXIF orientation, but resizing tools routinely drop the tag and
     leave the image sideways. Baking it in removes the question. Uses macOS sips,
     which is the only image tool this project assumes.
+
+    A 360 is left alone on both counts. Its orientation tag, where a camera writes one
+    at all, describes the sensor and not the sphere: rotating the pixels 90 degrees
+    would put the horizon down the middle of the frame and the viewer would faithfully
+    wrap that around the reader. It also keeps a larger long edge, because only a
+    slice of it is ever on screen at once.
     """
     import subprocess
-    def dims(path):
-        out = subprocess.run(["sips", "-g", "pixelWidth", "-g", "pixelHeight", path],
-                             capture_output=True).stdout.decode()
-        w = h = 0
-        for line in out.splitlines():
-            if "pixelWidth" in line:
-                w = int(line.split(":")[1])
-            elif "pixelHeight" in line:
-                h = int(line.split(":")[1])
-        return w, h
-
+    limit = MAX_EDGE_360 if pano else MAX_EDGE
     src_w, src_h = dims(src)
     # Only ever shrink. Passing a max larger than the image made sips upscale a
     # 1164px photo to 3436px, which is worse than doing nothing.
-    target = min(MAX_EDGE, max(src_w, src_h)) or MAX_EDGE
+    target = min(limit, max(src_w, src_h)) or limit
 
     # Convert and rotate in one pass. Chaining a second sips call over the output
     # re-encoded it down to 700px.
-    ori = read_exif(src).get("orientation")
+    ori = None if pano else read_exif(src).get("orientation")
     cmd = ["sips", "-s", "format", "jpeg",
            "-s", "formatOptions", str(JPEG_QUALITY),
            "-Z", str(target)]
@@ -316,8 +383,14 @@ def convert(src, dest):
         return False, (r.stderr or b"").decode()[:80]
 
     out_w, out_h = dims(dest)
-    if max(out_w, out_h) > MAX_EDGE or out_w < 400:
+    if max(out_w, out_h) > limit or out_w < 400:
         return False, f"unexpected output size {out_w}x{out_h} from {src_w}x{src_h}"
+
+    # A sphere that is not exactly 2:1 cannot be mapped without tearing or squashing,
+    # and sips rounds when it scales. Caught here rather than in the viewer, where it
+    # would show as a horizon that drifts as you turn.
+    if pano and out_w != out_h * 2:
+        return False, f"360 came out {out_w}x{out_h}, which is not 2:1"
 
     # The rotation is in the pixels now, so the tag must stop claiming it is needed.
     if ori in (3, 6, 8):
@@ -376,12 +449,22 @@ def main():
                 site, how, dist = best[0], "gps", round(d, 1)
 
         taken = exif["taken"] or date_from_name(fn)
+        projection = projection_of(path)
+        # A 2:1 image with no GPano marker is very often a 360 that lost its metadata
+        # on the way here — re-saved, mailed, or passed through a tool that rewrote it.
+        # Said out loud rather than acted on: the fix is to re-export from the camera,
+        # not for this script to decide what the picture is.
+        suspect = False
+        if projection is None:
+            w, h = dims(path)
+            suspect = bool(w and h and w == h * 2)
         if site is None:
             unmatched.append((fn, size, exif))
             continue
         planned.append({"src": path, "name": fn, "site": site, "how": how,
                         "dist": dist, "taken": taken, "gps": exif["gps"],
-                        "size": size, "orientation": exif["orientation"]})
+                        "size": size, "orientation": exif["orientation"],
+                        "projection": projection, "suspect": suspect})
 
     print(f"  {len(found)} photo(s) under incoming/\n")
     counts = {}
@@ -393,8 +476,12 @@ def main():
         rot = f"  rotate {({3: 180, 6: 90, 8: 270}).get(p['orientation'], 0)}deg" \
               if p["orientation"] in (3, 6, 8) else ""
         mb = p["size"] / 1e6
+        kind = "  360" if p["projection"] else ""
         print(f"  {p['name']:<30} -> site {p['site']}  [{via}]"
-              f"  {mb:.1f}MB{rot}")
+              f"  {mb:.1f}MB{rot}{kind}")
+        if p["suspect"]:
+            print(f"    {'':<28} ^ exactly 2:1 but carries no GPano marker. If this is "
+                  f"a 360, re-export it from the camera; it will be shown flat.")
     if unmatched:
         print()
         for fn, size, exif in unmatched:
@@ -415,7 +502,7 @@ def main():
     done = 0
     for p in planned:
         dest_abs = os.path.join(ROOT, p["dest"])
-        ok, err = convert(p["src"], dest_abs)
+        ok, err = convert(p["src"], dest_abs, pano=bool(p["projection"]))
         if not ok:
             print(f"  {p['name']}: CONVERSION FAILED {err}")
             continue
@@ -427,7 +514,7 @@ def main():
         os.makedirs(os.path.dirname(keep), exist_ok=True)
         shutil.move(p["src"], keep)
         done += 1
-        manifest["photos"].append({
+        record = {
             "site": p["site"],
             "file": "/" + p["dest"].split("static/", 1)[1],
             "taken": p["taken"],
@@ -436,7 +523,12 @@ def main():
             "gps_distance_ft": p["dist"],
             "credit": "own",
             "added": datetime.now().date().isoformat(),
-        })
+        }
+        # Only on a sphere. Writing "projection: null" onto every flat photograph would
+        # churn every record in the manifest to say nothing.
+        if p["projection"]:
+            record["projection"] = p["projection"]
+        manifest["photos"].append(record)
     manifest["photos"].sort(key=lambda x: (x["site"], x["file"]))
     with open(MANIFEST, "w") as fh:
         yaml.safe_dump(manifest, fh, sort_keys=False, allow_unicode=True)
