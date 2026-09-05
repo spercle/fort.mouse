@@ -2,7 +2,7 @@
 # must go through relURL. Override locally with:  hugo server --baseURL /
 baseURL = "https://spercle.github.io/fort.mouse/"
 locale = "en-us"
-title = "fort.mouse"
+title = "The.Fort"
 
 # Hugo sees ONLY data/resolved/, mounted as its data directory. The rest of data/ is
 # the pipeline's working material — machine-owned loops, human-owned seeds, reference
