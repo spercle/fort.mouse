@@ -206,8 +206,13 @@
         <canvas hidden></canvas>
         <p class="pano-hint" hidden>Drag to look around · scroll to zoom</p>
       </div>
+      {{ $ph := . }}
       <figcaption>
         360° photograph{{ with .taken }} · taken {{ . }}{{ end }}
+        {{ if and $ph.credit (ne $ph.credit "own") }}
+          · <a href="{{ $ph.landing }}">{{ with $ph.title }}{{ . }}{{ else }}Photograph{{ end }}</a>
+          by {{ $ph.credit }}, <a href="{{ $ph.licence_url }}" rel="license">{{ $ph.licence }}</a>
+        {{ end }}
         <span class="pano-flat">Shown flat — this browser has no WebGL.</span>
       </figcaption>
     </figure>
@@ -219,10 +224,15 @@
       <figure class="photo">
         <img src="{{ strings.TrimPrefix "/" .file | relURL }}" loading="lazy"
              alt="Site {{ $s.site_number }}">
+        {{ $ph := . }}
         <figcaption>
           {{ with .taken }}Taken {{ . }}{{ else }}Date unknown{{ end }}
           {{ if eq .matched_by "gps" }}
             · located by GPS{{ with .gps_distance_ft }}, {{ . }} ft from the mapped position{{ end }}
+          {{ end }}
+          {{ if and $ph.credit (ne $ph.credit "own") }}
+            · <a href="{{ $ph.landing }}">{{ with $ph.title }}{{ . }}{{ else }}Photograph{{ end }}</a>
+            by {{ $ph.credit }}, <a href="{{ $ph.licence_url }}" rel="license">{{ $ph.licence }}</a>
           {{ end }}
         </figcaption>
       </figure>
