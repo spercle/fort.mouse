@@ -25,6 +25,30 @@ photos:
   gps_distance_ft: null
   credit: own
   added: '2026-09-04'
+- site: 816
+  file: /photos/816-3.jpg
+  taken: null
+  matched_by: filename
+  gps: null
+  gps_distance_ft: null
+  credit: own
+  added: '2026-09-04'
+  projection: equirectangular
+- site: 816
+  file: /photos/816-4.jpg
+  taken: null
+  matched_by: filename
+  gps:
+  - 44.4335167
+  - -113.3167917
+  gps_distance_ft: null
+  credit: Daniel Schwen
+  added: '2026-09-04'
+  projection: equirectangular
+  title: Meadow Lake, Idaho
+  licence: CC BY-SA 4.0
+  licence_url: https://creativecommons.org/licenses/by-sa/4.0/
+  landing: https://commons.wikimedia.org/wiki/File:Meadow_Lake,_Idaho.jpg
 - site: 1420
   file: /photos/1420-1.jpg
   taken: null
