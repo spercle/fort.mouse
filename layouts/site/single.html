@@ -99,50 +99,6 @@
   {{ end }}
 {{ end }}
 
-<section>
-  <h2>Evidence</h2>
-  <div class="tw">
-    <table>
-      <thead><tr><th>Field</th><th>Value</th><th>Source</th></tr></thead>
-      <tbody>
-        {{/* A slice, not a dict — Go ranges maps in sorted key order, which threw
-              away the reading order and put Back-in side above Pad length. */}}
-        {{ range slice
-            (slice "site_length_ft" "Site length")
-            (slice "site_width_ft" "Site width")
-            (slice "pad_length_ft" "Concrete pad length")
-            (slice "pad_width_ft" "Concrete pad width")
-            (slice "pad_orientation_deg" "Orientation")
-            (slice "pad_surface" "Surface")
-            (slice "backs_onto" "Backs onto")
-            (slice "approach_side" "Back-in side")
-            (slice "backing_difficulty" "Backing in") }}
-          {{ $k := index . 0 }}{{ $label := index . 1 }}
-          {{ $f := index $s.fields $k }}
-          <tr>
-            <td>{{ $label }}</td>
-            <td class="num">{{ $f.display }}</td>
-            <td>
-              {{ if eq $f.state "measured" }}
-                <span class="tag" data-kind="{{ $f.source }}">{{ $f.source }}</span>
-                {{ if eq $f.source "seeded" }}<span class="credit">{{ $f.credit }}{{ with $f.published }} · published “{{ . }}”{{ end }}</span>{{ end }}
-                {{ if eq $f.source "observed" }}<span class="credit">on site{{ with $f.date }} · {{ . }}{{ end }}</span>{{ end }}
-              {{ else }}
-                <span class="tag">{{ $f.state }}</span>
-              {{ end }}
-            </td>
-          </tr>
-        {{ end }}
-        <tr>
-          <td>Sewer</td><td class="num">{{ if $b.sewer }}Yes{{ else }}No{{ end }}</td>
-          <td><span class="tag" data-kind="disney-category">disney-category</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-</section>
-
 {{/* The body of data/sites/<n>.md, written by hand. Markdown, so a note can carry
       a list or a link without fighting the template. */}}
 {{ with $s.notes }}<section class="site-notes"><h2>Notes</h2>{{ . | markdownify }}</section>{{ end }}
