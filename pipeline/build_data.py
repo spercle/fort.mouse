@@ -49,7 +49,8 @@ def load_photos():
 
 MEASURES = ["site_length_ft", "site_width_ft",
             "pad_length_ft", "pad_width_ft", "pad_orientation_deg",
-            "road_offset_ft", "pad_surface", "backs_onto", "approach_side"]
+            "road_offset_ft", "pad_surface", "backs_onto", "approach_side",
+            "backing_difficulty"]
 
 LABEL = {
     "unmeasured": "Unmeasured",
@@ -157,7 +158,8 @@ def main():
                     if isinstance(v, float) and v.is_integer():
                         v = int(v)
                     f["display"] = f"{v}{unit}"
-            for key in ("pad_surface", "backs_onto", "approach_side"):
+            for key in ("pad_surface", "backs_onto", "approach_side",
+                        "backing_difficulty"):
                 f = fields[key]
                 if f["state"] == "measured":
                     f["display"] = str(f["value"])

@@ -55,6 +55,8 @@ def main():
     ap.add_argument("--pad-width", type=float, help="poured concrete width, ft")
     ap.add_argument("--backs-onto")
     ap.add_argument("--surface")
+    ap.add_argument("--backing", choices=sorted(site_files.BACKING),
+                    help="how hard the pad is to back into")
     ap.add_argument("--note")
     # No default. Today is when it was *recorded*, which is not what the page would
     # be claiming — it would read as the day someone stood on the pad. Left out
@@ -77,7 +79,8 @@ def main():
                      ("site_width_ft", args.site_width),
                      ("pad_length_ft", args.pad_length),
                      ("pad_width_ft", args.pad_width),
-                     ("backs_onto", args.backs_onto), ("pad_surface", args.surface)):
+                     ("backs_onto", args.backs_onto), ("pad_surface", args.surface),
+                     ("backing_difficulty", args.backing)):
         if val is not None:
             entry[key] = val
     if entry == before and not args.note:
@@ -91,7 +94,7 @@ def main():
     print(f"  site {args.site} ({loop['category']}) -> "
           f"{os.path.relpath(path, ROOT)}")
     for k in ("site_length_ft", "site_width_ft", "pad_length_ft", "pad_width_ft",
-              "backs_onto", "pad_surface"):
+              "backs_onto", "pad_surface", "backing_difficulty"):
         if k in entry:
             print(f"    {k}: {entry[k]}")
 

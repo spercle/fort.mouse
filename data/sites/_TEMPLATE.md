@@ -25,6 +25,7 @@ pad_width_ft: 10
 pad_surface: concrete
 backs_onto: woods           # free text — woods, water, road, comfort station...
 approach_side: driver       # which side you back in from
+backing_difficulty: middling # how hard the pad is to back into: easy | middling | hard
 pad_orientation_deg: 42
 road_offset_ft: 18
 measured: 2026-01-14        # optional; leave it out rather than guessing

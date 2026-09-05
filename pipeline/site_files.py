@@ -32,7 +32,7 @@ SITES = os.path.join(ROOT, "data", "sites")
 MEASUREMENTS = {
     "site_length_ft", "site_width_ft", "pad_length_ft", "pad_width_ft",
     "pad_orientation_deg", "road_offset_ft", "pad_surface", "backs_onto",
-    "approach_side",
+    "approach_side", "backing_difficulty",
 }
 KEYS = MEASUREMENTS | {"site", "loop", "measured", "verified", "source"}
 
@@ -43,6 +43,12 @@ VERIFIED_KEYS = {"evidence", "kind", "note", "date", "by", "confidence"}
 # on the pad — because that is why you would be writing one by hand. Say otherwise when
 # it is otherwise: a guest's report and your own measurement must not read the same.
 SOURCES = {"observed", "reported", "county-record", "disney-category"}
+
+# How hard the pad is to back into. A judgement, not a measurement, but the one thing
+# a driver most wants to know and the one thing no aerial photograph can say. Kept to a
+# closed set so it means the same on every site — free text would give us "tight-ish",
+# "not bad" and "PITA" and nothing comparable.
+BACKING = {"easy", "middling", "hard"}
 
 FENCE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n?(.*)\Z", re.S)
 
@@ -117,6 +123,12 @@ def load_all(rosters):
             errors.append(f"{where}: source: {src!r} is not one of {sorted(SOURCES)}")
             continue
 
+        back = front.get("backing_difficulty")
+        if back is not None and back not in BACKING:
+            errors.append(f"{where}: backing_difficulty: {back!r} is not one of "
+                          f"{sorted(BACKING)}")
+            continue
+
         ver = front.get("verified")
         if ver is not None:
             if not isinstance(ver, dict):
@@ -154,7 +166,8 @@ def write(number, front, body, path=None):
     ordered = {"site": number}
     for k in ("loop", "source", "site_length_ft", "site_width_ft", "pad_length_ft",
               "pad_width_ft", "pad_orientation_deg", "road_offset_ft", "pad_surface",
-              "backs_onto", "approach_side", "measured", "verified"):
+              "backs_onto", "approach_side", "backing_difficulty", "measured",
+              "verified"):
         if front.get(k) is not None:
             ordered[k] = front[k]
 

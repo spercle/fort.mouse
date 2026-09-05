@@ -56,6 +56,7 @@
   {{ partial "fact.html" (dict "field" (index $s.fields "pad_surface") "label" "Surface") }}
   {{ partial "fact.html" (dict "field" (index $s.fields "backs_onto") "label" "Backs onto") }}
   {{ partial "fact.html" (dict "field" (index $s.fields "approach_side") "label" "Back-in side") }}
+  {{ partial "fact.html" (dict "field" (index $s.fields "backing_difficulty") "label" "Backing in") }}
 </div>
 
 <p class="fallback">
@@ -119,7 +120,8 @@
             (slice "pad_orientation_deg" "Orientation")
             (slice "pad_surface" "Surface")
             (slice "backs_onto" "Backs onto")
-            (slice "approach_side" "Back-in side") }}
+            (slice "approach_side" "Back-in side")
+            (slice "backing_difficulty" "Backing in") }}
           {{ $k := index . 0 }}{{ $label := index . 1 }}
           {{ $f := index $s.fields $k }}
           <tr>
