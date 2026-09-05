@@ -1191,3 +1191,54 @@ footer nav a:hover { color: var(--accent); }
   .lookup-results { width: min(20rem, 92vw); }
   .lr-sub { display: none; }
 }
+
+
+/* ---- 360 photographs ------------------------------------------------------ */
+/* The viewer is a canvas laid over the flat image, not a replacement for it. The
+   image stays in the DOM as both the no-WebGL fallback and the texture source. */
+.photo.is-360 { margin: 1.25rem 0; }
+.pano {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 3px solid var(--bark);
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--bark);
+}
+.pano img,
+.pano canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* Contain, not cover: unrolled, the whole sphere is the point. */
+.pano img { object-fit: contain; }
+.pano canvas {
+  cursor: grab;
+  /* Without this a drag scrolls the page on a touch screen instead of turning. */
+  touch-action: none;
+}
+.pano canvas:active { cursor: grabbing; }
+.pano canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+.pano-hint {
+  position: absolute;
+  left: .5rem;
+  bottom: .5rem;
+  margin: 0;
+  padding: .2rem .5rem;
+  font-size: .75rem;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .62);
+  color: #fff;
+  pointer-events: none;
+}
+/* Only admit to being flat when the viewer actually failed to start. */
+.pano-flat { display: inline; }
+.pano.is-live ~ figcaption .pano-flat { display: none; }
+
+@media (max-width: 30rem) {
+  .pano { aspect-ratio: 4 / 3; }
+}

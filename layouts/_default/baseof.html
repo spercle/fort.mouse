@@ -119,7 +119,7 @@
     {{ $idx := resources.Get "search-index.json" | fingerprint "sha256" }}
     (function () {
       var shots = [].slice.call(
-        document.querySelectorAll(".photo img, figure.aerial img"));
+        document.querySelectorAll(".photo:not(.is-360) img, figure.aerial img"));
       if (!shots.length) return;
 
       var dlg = document.getElementById("lightbox");
